@@ -32,7 +32,7 @@ const Ingredients = (props) => {
                     </Typography>
                     {
                       ingredients.map((ingredient) => (
-                        <Typography variant="body2" key={ingredient} >
+                        <Typography variant="body2" key={ingredient} gutterBottom>
                         {ingredient}
                         </Typography>
                       ))
