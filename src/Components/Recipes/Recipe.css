@@ -53,8 +53,14 @@
   margin: 5px;
   z-index: 1;
 }
+.recipeDialog {
+  overflow: visible;
+  object-fit: contain;
+}
+
 .recipeDialogImg {
-  object-fit: cover;
+  width: 100%;
+  height: 100%;
 }
 
 * {

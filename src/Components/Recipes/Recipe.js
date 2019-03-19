@@ -58,42 +58,45 @@ class Recipe extends Component {
         [classes.contentShift]: isDrawerOpen,
       })}>
         <div className={classes.toolbar} />
-        <Paper className={classes.txtContent}>
-          { !haveRecipe ?
-            <Typography variant="h3" className={'typo'}>
-              Select a recipe
-            </Typography>
-          :
-            <Fragment> 
-              {/* TODO: Extract to Recipe Header or something like that */}
-              <div className={'titleBackground'} {...renderStyle(recipeImgUrl)}>
-                <div className={'titleContainer'}>
-                  <img src={recipeImgUrl} className='recipeImg' onClick={this.handleImgDialog}/>
-  
-                  <div className={'rightImgContainer'}>
-                    <Typography variant="h3" className={'typo'} >
-                      {title}
-                    </Typography>
-                    <hr className={'typo'}/>
-                    
-                    <Informations recipeInfo={recipeInfo} className={'typo'} />
-                  </div>
-                </div>
-              </div>             
-              <Typography variant="caption">
-                {`from ${websiteName}`}        
-              </Typography>
-              
-              <div style={{ paddingBottom: 50 }}>
-                <Ingredients ingredients={ingredients} />
-              </div>
+        <Fragment> 
 
-              <Steps steps={steps} />
-  
-              <ImgDialog recipeImgUrl={recipeImgUrl} isImgDialogOpen={this.state.isImgDialogOpen} handleImgDialog={this.handleImgDialog}/>
-            </Fragment>
-          }
-        </Paper>
+          <Paper className={classes.txtContent}>
+            { !haveRecipe ?
+              <Typography variant="h3" className={'typo'}>
+                Select a recipe
+              </Typography>
+            :
+              <Fragment> 
+                {/* TODO: Extract to Recipe Header or something like that */}
+                <div className={'titleBackground'} {...renderStyle(recipeImgUrl)}>
+                  <div className={'titleContainer'}>
+                    <img src={recipeImgUrl} className='recipeImg' onClick={this.handleImgDialog}/>
+    
+                    <div className={'rightImgContainer'}>
+                      <Typography variant="h3" className={'typo'} >
+                        {title}
+                      </Typography>
+                      <hr className={'typo'}/>
+                      
+                      <Informations recipeInfo={recipeInfo} className={'typo'} />
+                    </div>
+                  </div>
+                </div>             
+                <Typography variant="caption">
+                  {`from ${websiteName}`}        
+                </Typography>
+                
+                <div style={{ paddingBottom: 50 }}>
+                  <Ingredients ingredients={ingredients} />
+                </div>
+
+                <Steps steps={steps} />
+              </Fragment>
+            }
+          </Paper>
+          <ImgDialog recipeImgUrl={recipeImgUrl} isImgDialogOpen={this.state.isImgDialogOpen} handleImgDialog={this.handleImgDialog}/>
+        </Fragment>
+
       </main>
     )
   }

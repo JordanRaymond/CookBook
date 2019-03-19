@@ -74,16 +74,16 @@ export const recipes = [
       "Retirer du four et couvrir de papier d'aluminium. Laisser reposer 5 minutes avant de trancher. Décorer de thym frais.",
       "Accompagner de pilaf d'orge aux lardons et/ou de purée de courge poivrée à l'érable."
     ],
-    "recipeImgUrl": "https://images.ricardocuisine.com/services/recipes/500x675_3011.jpg"
+    "recipeImgUrl": "https://images.media-allrecipes.com/userphotos/720x405/690429.jpg"
   },
   {
     "websiteName": "Trois fois par jour",
     "recipeUrl": "https://www.troisfoisparjour.com/fr/recettes/plats-principaux/poulet-volaille/poulet-a-la-moutarde-herbes-fraiches-riz-a-la-ciboulette/",
     "title": "Poulet à la moutarde, herbes fraiches & riz à la ciboulette ",
     "recipeInfo": {
-      "preparationTime": 1200000,
-      "cookTime": 1,
-      "portions": null
+      "preparationTimeInMs": 1200000,
+      "cookTimeInMs": 10000,
+      "portions": 6
     },
     "ingredients": [
       "1 c. à soupe d’huile végétale",

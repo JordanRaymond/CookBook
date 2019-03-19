@@ -6,7 +6,7 @@ import { DialogContent } from '@material-ui/core';
 
 const styles = {
   recipeDialogImg: {
-    display: 'flex',
+    objectFit: 'contain'
   }
 };
 
@@ -18,7 +18,7 @@ const ImgDialog = (props) => {
         open={props.isImgDialogOpen}
         onClose={props.handleImgDialog}
       >
-        <DialogContent>
+        <DialogContent className={'recipeDialog'}>
           <img src={props.recipeImgUrl} className={'recipeDialogImg'} />        
         </DialogContent>
       </Dialog>

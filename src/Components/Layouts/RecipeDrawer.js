@@ -49,8 +49,7 @@ class RecipeDrawer extends Component {
   }
   
   render() {
-    const { classes } = this.props
-    const { recipesData, isDrawerOpen, isDrawerLocked } = this.props
+    const { classes, recipesData, isDrawerOpen, isDrawerLocked } = this.props
 
     return (
       <Fragment>
