@@ -1,31 +1,32 @@
 {
   "name": "cook-book",
   "version": "1.0.0",
-  "description": "",
-  "keywords": [],
-  "main": "src/index.js",
-  "dependencies": {
-    "@material-ui/core": "3.9.2",
-    "@material-ui/icons": "3.0.2",
-    "classnames": "2.2.6",
-    "pretty-ms": "4.0.0",
-    "prop-types": "^15.7.2",
-    "react": "16.8.3",
-    "react-dom": "16.8.3",
-    "react-scripts": "2.0.3",
-    "typeface-roboto": "0.0.54"
-  },
-  "devDependencies": {},
+  "description": "Server to handle the cook-book React app data",
+  "main": "app.js",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.js"
   },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ]
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Just4lol/CookBook.git"
+  },
+  "author": "Jordan Raymond",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Just4lol/CookBook/issues"
+  },
+  "homepage": "https://github.com/Just4lol/CookBook#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "connect-flash": "^0.1.1",
+    "express": "^4.16.4",
+    "express-session": "^1.15.6",
+    "passport": "^0.4.0",
+    "pg": "^7.9.0",
+    "sequelize": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.10"
+  }
 }

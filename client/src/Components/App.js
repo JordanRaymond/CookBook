@@ -1,15 +1,25 @@
-import React, { Component, Fragment } from 'react'
-import CssBaseline from '@material-ui/core/CssBaseline';
+import React, { Component } from 'react'
+import {
+  BrowserRouter as Router,
+  Route,
+} from "react-router-dom"
+import CssBaseline from '@material-ui/core/CssBaseline'
 import { withStyles } from '@material-ui/core/styles'
-import { Header, RecipeDrawer } from './Layouts'
+import { Header } from './Layouts'
+import RecipeDrawer from './Recipe/RecipeDrawer'
+import PrivateRoute from './Router/PrivateRoute'
+import Auth from './Auth/Auth'
 import 'typeface-roboto'
 
 import { recipes } from '../Recipes.js'
 
 const styles = theme => ({
   root: {
-    display: 'flex',
-  }
+
+  },
+  flex: {
+    display: 'flex'
+  },
 })
   
 class App extends Component {
@@ -46,21 +56,34 @@ class App extends Component {
   render() {
     const { classes } = this.props
     const recipesData = this.getRecipesBySiteName()
-    const isDrawerOpen = this.state.isDrawerOpen
-    const isDrawerLocked = this.state.isDrawerLocked
+    const { isDrawerOpen, isDrawerLocked} = this.state
+
+    let recipeDrawerProps = { 
+      recipesData: recipesData, 
+      isDrawerOpen: isDrawerOpen, 
+      isDrawerLocked: isDrawerLocked, 
+      handleDrawerLock: this.handleDrawerLock,
+      handleDrawerOpen: this.handleDrawer 
+    }
 
     return (
       <div className={classes.root}>
         <CssBaseline />
         <Header isDrawerOpen={isDrawerOpen} handleDrawerOpen={this.handleDrawer}/>
-        {/*Recipe rendered in the Drawer*/}
-        <RecipeDrawer 
-          recipesData={recipesData} 
-          isDrawerOpen={isDrawerOpen} 
-          isDrawerLocked={isDrawerLocked} 
-          handleDrawerLock={this.handleDrawerLock}
-          handleDrawerOpen={this.handleDrawer}
-        />
+        <Router >
+          <div className={classes.flex}>
+            <Route path="/login" component={Auth} />
+            <PrivateRoute exact path="/" component={RecipeDrawer} recipeDrawerProps={recipeDrawerProps} />
+            {/*Recipe rendered in the Drawer*/}
+            {/*<RecipeDrawer 
+              recipesData={recipesData} 
+              isDrawerOpen={isDrawerOpen} 
+              isDrawerLocked={isDrawerLocked} 
+              handleDrawerLock={this.handleDrawerLock}
+              handleDrawerOpen={this.handleDrawer}
+            />*/}
+          </div>
+        </Router>
       </div>
     )
   }

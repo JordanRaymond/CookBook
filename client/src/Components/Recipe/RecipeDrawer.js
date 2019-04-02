@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react'
 import { Drawer, List, ListItem, ListItemText, Collapse, Divider, IconButton } from '@material-ui/core'
 import { ExpandLess, ExpandMore, Lock, LockOpen } from '@material-ui/icons'
 import { withStyles } from '@material-ui/core/styles'
-import Recipe from '../Recipes/Recipe.js'
+import Recipe from './Recipe.js'
 
 const drawerWidth = 240
 

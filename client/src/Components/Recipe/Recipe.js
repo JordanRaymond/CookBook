@@ -1,5 +1,5 @@
 import React, { Fragment, Component } from 'react'
-import { Typography, Paper, Divider } from '@material-ui/core'
+import { Typography, Paper } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
 import { Ingredients, Steps, Informations, ImgDialog } from '../Layouts'
 import classNames from 'classnames'
@@ -70,7 +70,7 @@ class Recipe extends Component {
                 {/* TODO: Extract to Recipe Header or something like that */}
                 <div className={'titleBackground'} {...renderStyle(recipeImgUrl)}>
                   <div className={'titleContainer'}>
-                    <img src={recipeImgUrl} className='recipeImg' onClick={this.handleImgDialog}/>
+                    <img src={recipeImgUrl} className='recipeImg' alt='Recipe' onClick={this.handleImgDialog}/>
     
                     <div className={'rightImgContainer'}>
                       <Typography variant="h3" className={'typo'} >
@@ -94,7 +94,11 @@ class Recipe extends Component {
               </Fragment>
             }
           </Paper>
-          <ImgDialog recipeImgUrl={recipeImgUrl} isImgDialogOpen={this.state.isImgDialogOpen} handleImgDialog={this.handleImgDialog}/>
+          <ImgDialog 
+            recipeImgUrl={recipeImgUrl} 
+            isImgDialogOpen={this.state.isImgDialogOpen} 
+            handleImgDialog={this.handleImgDialog}
+          />
         </Fragment>
 
       </main>
