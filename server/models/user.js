@@ -1,4 +1,4 @@
-const bcrypt = require('bcryptjs');
+const bcrypt = require('bcryptjs')
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
@@ -23,10 +23,14 @@ module.exports = (sequelize, DataTypes) => {
         min: [6, 100]
       },
       set(val) {
-        this.setDataValue('password', bcrypt.hashSync(val, 10))
+        this.setDataValue('password', bcrypt.hashSync(val, 10)) // https://crackstation.net/hashing-security.htm
       }
     },
   })
 
-  return User;
+  User.prototype.validatePassword = function(password) {
+    return bcrypt.compare(password, this.password)
+  }
+
+  return User
 }

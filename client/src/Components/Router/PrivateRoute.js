@@ -2,26 +2,27 @@ import React from 'react'
 import {
     Route,
     Redirect,
-  } from "react-router-dom"
+  } from 'react-router-dom'
 
-function PrivateRoute({ component: Component, recipeDrawerProps, ...rest }) {
+const PrivateRoute = ({ component: Component, recipeDrawerProps, isAuth, redirectTo, ...rest }) => {
+    console.log(`Private route isAuth: ${isAuth} ${window.location}`)
     return (
       <Route
         {...rest}
-        render={props =>
-          true ? (
-            <Component {...props} {...recipeDrawerProps}/>
-          ) : (
+        render = { props => (
+          isAuth ? ( 
+              <Component {...props} {...recipeDrawerProps}/> 
+            ) : (
             <Redirect
               to={{
-                pathname: "/login",
+                pathname: redirectTo,
                 state: { from: props.location }
               }}
             />
           )
-        }
+        )}
       />
-    );
+    )
   }
 
-  export default PrivateRoute
+export default PrivateRoute

@@ -1,35 +1,27 @@
-const express = require('express');
-const router = express.Router();
-const bcrypt = require('bcryptjs');
-const passport = require('passport');
-// Load User model
-const { User } = require('../models');
+const express = require('express')
+const router = express.Router()
+const passport = require('passport')
+// const jwt = require('jsonwebtoken') 
 
-// Register
+
 router.post('/register', (req, res) => {
   const { name, email, password, password2 } = req.body;
-  let errors = [];
+  let errors = []
 
   if (!name || !email || !password || !password2) {
-    errors.push({ msg: 'Please enter all fields' });
+    errors.push({ msg: 'Please enter all fields' })
   }
 
   if (password != password2) {
-    errors.push({ msg: 'Passwords do not match' });
+    errors.push({ msg: 'Passwords do not match' })
   }
 
   if (password.length < 6) {
-    errors.push({ msg: 'Password must be at least 6 characters' });
+    errors.push({ msg: 'Password must be at least 6 characters' })
   }
 
   if (errors.length > 0) {
-    res.render('register', {
-      errors,
-      name,
-      email,
-      password,
-      password2
-    })
+    
   } else {
     console.log('Validated')
     // User.findOne({ email: email }).then(user => {
@@ -68,22 +60,26 @@ router.post('/register', (req, res) => {
     //   }
     // });
   }
-});
+})
 
-// Login
-router.post('/login', (req, res, next) => {
-  passport.authenticate('local', {
-    successRedirect: '/dashboard',
-    failureRedirect: '/users/login',
-    failureFlash: true
-  })(req, res, next);
-});
+router.post('/login', passport.authenticate('local'), (req, res) => {
+ 
+  return res.status(200).json({
+    message: "Auth successful",
+    username: req.user.username
+  })
+})
 
-// Logout
+router.get('/isAuth', (req, res) => {
+  if(req.isAuthenticated()) {
+    res.status(200).send('User is authenticated.')
+  } else {
+    res.status(401).send('User not authenticated')
+  }
+}) 
+
 router.get('/logout', (req, res) => {
-  req.logout();
-  req.flash('success_msg', 'You are logged out');
-  res.redirect('/users/login');
-});
+  req.logout()
+})
 
-module.exports = router;
+module.exports = router

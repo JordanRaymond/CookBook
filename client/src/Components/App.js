@@ -1,14 +1,19 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import {
   BrowserRouter as Router,
   Route,
+  Redirect,
+  Switch
 } from "react-router-dom"
 import CssBaseline from '@material-ui/core/CssBaseline'
 import { withStyles } from '@material-ui/core/styles'
+import ReactLoading from 'react-loading'
 import { Header } from './Layouts'
 import RecipeDrawer from './Recipe/RecipeDrawer'
 import PrivateRoute from './Router/PrivateRoute'
 import Auth from './Auth/Auth'
+import { isAuthenticate } from '../Lib/api'
+
 import 'typeface-roboto'
 
 import { recipes } from '../Recipes.js'
@@ -18,8 +23,15 @@ const styles = theme => ({
 
   },
   flex: {
-    display: 'flex'
+    display: 'flex',
   },
+  spinner: {
+    flexGrow: 0.25, 
+    margin: 'auto',
+    marginTop: theme.spacing.unit * 20,
+    color: theme.palette.primary
+  },
+  toolbar: theme.mixins.toolbar,
 })
   
 class App extends Component {
@@ -27,6 +39,22 @@ class App extends Component {
     recipes, 
     isDrawerOpen: !this.isMobileDevice(),
     isDrawerLocked: !this.isMobileDevice(),
+    isAuth: undefined,
+  }
+
+  async componentDidMount() {
+    try {
+       const isAuth = await isAuthenticate()    
+       this.setState({ isAuth })
+       window.alert(isAuth)
+    } catch(err) {
+       console.log(err)
+       window.alert(err)
+    }
+  }
+
+  updateAuthState = (newAuthValue) => {
+    this.setState({ isAuth: newAuthValue })
   }
 
   isMobileDevice() {
@@ -56,7 +84,9 @@ class App extends Component {
   render() {
     const { classes } = this.props
     const recipesData = this.getRecipesBySiteName()
-    const { isDrawerOpen, isDrawerLocked} = this.state
+    const { isDrawerOpen, isDrawerLocked, isAuth } = this.state
+
+    console.log(`App isAuth: ${isAuth} ${window.location}`)
 
     let recipeDrawerProps = { 
       recipesData: recipesData, 
@@ -71,18 +101,24 @@ class App extends Component {
         <CssBaseline />
         <Header isDrawerOpen={isDrawerOpen} handleDrawerOpen={this.handleDrawer}/>
         <Router >
-          <div className={classes.flex}>
-            <Route path="/login" component={Auth} />
-            <PrivateRoute exact path="/" component={RecipeDrawer} recipeDrawerProps={recipeDrawerProps} />
+          <Switch>
             {/*Recipe rendered in the Drawer*/}
-            {/*<RecipeDrawer 
-              recipesData={recipesData} 
-              isDrawerOpen={isDrawerOpen} 
-              isDrawerLocked={isDrawerLocked} 
-              handleDrawerLock={this.handleDrawerLock}
-              handleDrawerOpen={this.handleDrawer}
-            />*/}
-          </div>
+            <div className={classes.flex}>
+              { 
+                isAuth === undefined ? (
+                  <Fragment>
+                    <div className={classes.toolbar} />
+                    <ReactLoading type="bars" color='#3f51b5' className={classes.spinner} />
+                  </Fragment>
+                ) : (
+                  <Fragment>
+                    <PrivateRoute exact path="/" component={RecipeDrawer} recipeDrawerProps={recipeDrawerProps} isAuth={isAuth} redirectTo="/login" />
+                    <Route path="/login" render={ props => <Auth isAuth={isAuth} updateAuthState={this.updateAuthState} /> } />
+                  </Fragment>
+                )
+              }
+            </div>
+          </Switch>
         </Router>
       </div>
     )

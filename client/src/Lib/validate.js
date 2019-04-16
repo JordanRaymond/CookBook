@@ -8,28 +8,28 @@ const validate = (value, rules) => {
         switch (rule) {
             case 'isEmail':{
                 const isFollowingRule = emailValidator(value)
-                if(!isFollowingRule) errors.push('Invalid email format.')
+                if(!isFollowingRule) errors.push({rule, msg: 'Invalid email format.'} )
 
                 isValid = isValid && isFollowingRule
                 break
             }
             case 'minLength':{
                 const isFollowingRule = minLengthValidator(value, rules[rule])
-                if(!isFollowingRule) errors.push(`The field must contain at least ${rules[rule]} characters.`)
+                if(!isFollowingRule) errors.push( {rule, msg: `The field must contain at least ${rules[rule]} characters.`} )
 
                 isValid = isValid && isFollowingRule
                 break
             }
             case 'maxLength':{
                 const isFollowingRule = maxLengthValidator(value, rules[rule])
-                if(!isFollowingRule) errors.push(`The field can only contain ${rules[rule]} characters.`)                
+                if(!isFollowingRule) errors.push( {rule, msg: `The field can only contain ${rules[rule]} characters.`} )                
 
                 isValid = isValid && isFollowingRule
                 break
             }
             case 'isRequired': {
                 const isFollowingRule = requiredValidator(value)
-                if(!isFollowingRule) errors.push('This field is required.')
+                if(!isFollowingRule) errors.push( {rule, msg: 'This field is required.'} )
 
                 isValid = isValid && isFollowingRule
                 break
@@ -77,7 +77,7 @@ const requiredValidator = value => {
  * @return 
  */
 const emailValidator = value => {
-    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     return re.test(String(value).toLowerCase())
 }
 

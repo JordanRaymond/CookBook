@@ -5,7 +5,9 @@ import {
       Input, InputLabel, Paper, Typography, withStyles 
 } from '@material-ui/core'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
+import { withRouter, Redirect } from 'react-router-dom' 
 import validate from '../../Lib/validate.js'
+import { login } from '../../Lib/api'
 
 const styles = theme => ({
   main: {
@@ -46,6 +48,7 @@ class SignIn extends Component {
         super(props)
 
         this.state = {
+          isAuth: props.isAuth,
           formIsValid: false,
           formControls: {
             email: {
@@ -78,7 +81,6 @@ class SignIn extends Component {
     // Validation 
     handleInputBlur = event => {
       const name = event.target.name
-      const value = event.target.value
 
       const updatedControls = {
         ...this.state.formControls
@@ -89,8 +91,7 @@ class SignIn extends Component {
       }
       updatedFormElement.touched = true
       
-      updatedFormElement = { ...updatedFormElement, ...validate(value, updatedFormElement.validationRules) } 
-      console.log(updatedFormElement)
+      updatedFormElement = { ...updatedFormElement, ...validate(updatedFormElement.value, updatedFormElement.validationRules) } 
       updatedControls[name] = updatedFormElement
 
       this.setState({
@@ -120,25 +121,46 @@ class SignIn extends Component {
 
     handleSubmit = event => {
       event.preventDefault()
-      console.log(this.state)
-
+      
       const controls = {
         ...this.state.formControls
       }
+
       let formIsValid = true
       for (let inputIdentifier in controls) {
         formIsValid = controls[inputIdentifier].isValid && formIsValid
       }
 
-      // TODO API submit or Show errors msg 
+      if(formIsValid) {
+        login(controls.email.value, controls.password.value)
+        .then(res => {
+          if(res.status === 200) {
+              console.log(`login response: ${res.data.message}`)
+              this.props.history.push('/')
+              this.props.updateAuthState(true)
+          }
+        })
+      }
+      // TODO API submit and Show server errors msg 
     }
+    
+    showErrorsMsg = errors => (
+      errors.map(error => (
+        (errors.length === 1 || error.rule !== 'isRequired') 
+        && 
+        <FormHelperText id="password-error-text" key={ error.msg }>{error.msg}</FormHelperText> 
+      ))
+    )
 
   render() {
-    const { classes } = this.props
+    const { classes, isAuth } = this.props
+
     let isEmailValid = this.state.formControls.email.touched && !this.state.formControls.email.isValid
     let isPasswordValid = this.state.formControls.password.touched && !this.state.formControls.password.isValid
-
+    console.log(`Auth isAuth: ${isAuth} ${window.location}`)
+    
     return (
+        isAuth === true ? <Redirect to="/" exact /> :      
         <main className={classes.main}>
           <div className={classes.toolbar} />
           <Paper className={classes.paper}>
@@ -156,16 +178,15 @@ class SignIn extends Component {
                   id="email" 
                   name="email" 
                   autoComplete="email" 
-                  autoFocus 
+                  autoFocus={false} // TODO: if autofocus true and data set by browser and user click outside window, email value would be empty and send error 
                   value={this.state.formControls.email.value} 
                   onChange={this.handleInputChange}
                   onBlur={this.handleInputBlur} 
                   error={ isEmailValid }
                   aria-describedby="email-error-text"
                 />
-                { this.state.formControls.email.errors.map(error => (
-                    <FormHelperText id="email-error-text" key={ error }>{ error }</FormHelperText>
-                  ))
+                { 
+                  this.showErrorsMsg(this.state.formControls.email.errors)
                 }
               </FormControl>
               <FormControl margin="normal" error={ isPasswordValid } required fullWidth>
@@ -181,9 +202,8 @@ class SignIn extends Component {
                   error={ isPasswordValid }
                   aria-describedby="password-error-text"
                 />
-                { this.state.formControls.password.errors.map(error => (
-                    <FormHelperText id="password-error-text" key={ error }>{error}</FormHelperText>
-                  ))
+                {
+                  this.showErrorsMsg(this.state.formControls.password.errors)
                 }
               </FormControl>
               <FormControlLabel
@@ -202,13 +222,13 @@ class SignIn extends Component {
             </form>
           </Paper>
         </main>
-      );
+      )
   }
-  
+
 }
 
 SignIn.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(SignIn);
+export default withRouter(withStyles(styles)(SignIn))
