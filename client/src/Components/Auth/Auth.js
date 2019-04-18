@@ -6,8 +6,9 @@ import {
 } from '@material-ui/core'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import { withRouter, Redirect } from 'react-router-dom' 
+import { withSnackbar } from 'notistack';
 import validate from '../../Lib/validate.js'
-import { login } from '../../Lib/api'
+import { login } from '../../Lib/API/api'
 
 const styles = theme => ({
   main: {
@@ -119,7 +120,7 @@ class SignIn extends Component {
       })
     }
 
-    handleSubmit = event => {
+    handleSubmit = async  event => {
       event.preventDefault()
       
       const controls = {
@@ -132,14 +133,22 @@ class SignIn extends Component {
       }
 
       if(formIsValid) {
-        login(controls.email.value, controls.password.value)
-        .then(res => {
-          if(res.status === 200) {
-              console.log(`login response: ${res.data.message}`)
-              this.props.history.push('/')
-              this.props.updateAuthState(true)
+        try {
+          const {successful, message} = await login(controls.email.value, controls.password.value)
+          if(successful) this.props.updateAuthState(true)
+          else {
+            this.props.enqueueSnackbar(message, {
+              variant: 'error',
+              persist: true,
+              action: (
+                  <Button size="small">{'Dismiss'}</Button>
+              ),
+            })
           }
-        })
+          // window.alert(message)
+        } catch(err) {
+          console.log(err)
+        }
       }
       // TODO API submit and Show server errors msg 
     }
@@ -231,4 +240,4 @@ SignIn.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withRouter(withStyles(styles)(SignIn))
+export default withSnackbar(withRouter(withStyles(styles)(SignIn)))

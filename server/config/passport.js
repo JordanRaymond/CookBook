@@ -17,7 +17,7 @@ passport.use(new LocalStrategy(
         if(result) return done(null, user)
       } 
 
-      return done(null, false, { errors: { 'email or password': 'is invalid' } })    
+      return done(null, false)    
     }).catch(done)
 }))
 

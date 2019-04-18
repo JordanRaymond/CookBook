@@ -10,7 +10,7 @@ const config = require('./config/config')
 
 // Cors definition 
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://192.168.2.89:3000')
+  res.setHeader('Access-Control-Allow-Origin', 'http://192.168.2.43:3000') // TODO: setup env variable
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, cookie, set-cookie')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE')
   res.setHeader('Access-Control-Allow-Credentials', true)

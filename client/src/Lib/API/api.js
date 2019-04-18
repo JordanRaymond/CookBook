@@ -2,7 +2,7 @@ const axios = require('axios')
 
 const serverUrl = process.env.REACT_APP_SERVERURL
 
-const login = (email, password) => {
+const login = async (email, password) => {
     const reqBody = {
         email,
         password
@@ -12,7 +12,38 @@ const login = (email, password) => {
         withCredentials : true,
     }
 
-    return axios.post(`${serverUrl}/user/login`, reqBody, config)
+    return axios.post(`${serverUrl}/user/login`, reqBody, config).then(res => {
+        if(res.status === 200) return {
+            successful: true, 
+            message: res.data.message 
+        }
+    }).catch(error => {
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            if(error.response.status === 401) return {
+                successful: false, 
+                message: error.response.data.message 
+            }
+
+            // conso10le.log(error.response.data);
+            // console.log(error.response.status);
+            // console.log(error.response.headers);
+        } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+
+            throw new Error('The request was made but no response was received')
+            // console.log(error.request)
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log('Error', error.message)
+        }
+
+        console.error('Request config: ')
+        console.log(error.config)
+    })
 }
 
 // const login = (username, password) => {
@@ -37,25 +68,36 @@ const isAuthenticate = async () => {
     }
 
     return axios.get(`${serverUrl}/user/isAuth`, config).then(res => {
-        if(res.status === 200) return true
+        if(res.status === 200) return {
+            successful: true, 
+            message: res.data.message 
+        }
+
     }).catch(error => {
         if (error.response) {
             // The request was made and the server responded with a status code
             // that falls out of the range of 2xx
-            if(error.response.status === 401) return false
+            if(error.response.status === 401) return {
+                successful: false, 
+                message: error.response.data.message 
+            }
 
             // console.log(error.response.data);
-            // console.log(error.response.status);
+            // console.log(error.response.status); 
             // console.log(error.response.headers);
         } else if (error.request) {
             // The request was made but no response was received
             // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
             // http.ClientRequest in node.js
-            console.log(error.request)
+
+            throw new Error('The request was made but no response was received')
+            
+            // console.log(error.request)
         } else {
             // Something happened in setting up the request that triggered an Error
             console.log('Error', error.message)
         }
+        console.error('Request config: ')
         console.log(error.config)
     })
 }

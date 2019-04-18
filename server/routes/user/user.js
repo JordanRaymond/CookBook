@@ -62,19 +62,45 @@ router.post('/register', (req, res) => {
   }
 })
 
-router.post('/login', passport.authenticate('local'), (req, res) => {
+router.post('/login', (req, res, next) => {
+  passport.authenticate('local', function(err, user, info) {
+    if (err) {
+      return next(err); // will generate a 500 error
+    }
+
+    // Generate a JSON response reflecting authentication status
+    if (! user) {
+      return res.status(401).json({ 
+        success : false, 
+        message : 'Invalide email or paswword' 
+      })
+    }
  
-  return res.status(200).json({
-    message: "Auth successful",
-    username: req.user.username
-  })
+    req.login(user, loginErr => {
+      if (loginErr) {
+        return next(loginErr)
+      }
+
+      return res.status(200).json({ 
+        success : true, 
+        message : 'Authentication succeeded',
+        username: user.username
+      })
+    })
+  })(req, res, next)
 })
 
 router.get('/isAuth', (req, res) => {
   if(req.isAuthenticated()) {
-    res.status(200).send('User is authenticated.')
+      res.status(200).json({
+        isAuth: true, 
+        message: 'User is authenticated.'
+    })
   } else {
-    res.status(401).send('User not authenticated')
+      res.status(401).json({
+        isAuth: false,
+        message: 'User not authenticated'
+    })
   }
 }) 
 

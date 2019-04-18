@@ -12,7 +12,7 @@ import { Header } from './Layouts'
 import RecipeDrawer from './Recipe/RecipeDrawer'
 import PrivateRoute from './Router/PrivateRoute'
 import Auth from './Auth/Auth'
-import { isAuthenticate } from '../Lib/api'
+import { isAuthenticate } from '../Lib/API/api'
 
 import 'typeface-roboto'
 
@@ -44,9 +44,9 @@ class App extends Component {
 
   async componentDidMount() {
     try {
-       const isAuth = await isAuthenticate()    
-       this.setState({ isAuth })
-       window.alert(isAuth)
+       const { successful, message } = await isAuthenticate()    
+       this.setState({ isAuth: successful })
+       window.alert(`App componentDidMount isAuth state: ${successful}`)
     } catch(err) {
        console.log(err)
        window.alert(err)
@@ -113,7 +113,7 @@ class App extends Component {
                 ) : (
                   <Fragment>
                     <PrivateRoute exact path="/" component={RecipeDrawer} recipeDrawerProps={recipeDrawerProps} isAuth={isAuth} redirectTo="/login" />
-                    <Route path="/login" render={ props => <Auth isAuth={isAuth} updateAuthState={this.updateAuthState} /> } />
+                    <Route exact path="/login" render={ props => <Auth isAuth={isAuth} updateAuthState={this.updateAuthState} /> } />
                   </Fragment>
                 )
               }
