@@ -1,13 +1,15 @@
 import React from 'react'
-import {AppBar, Toolbar, IconButton, Typography} from '@material-ui/core'
+import {AppBar, Toolbar, IconButton, Typography, Button} from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
 import { withStyles } from '@material-ui/core/styles'
 import classNames from 'classnames'
+import { withRouter } from 'react-router-dom'
 
 const drawerWidth = 240
 
 const styles = theme => ({
   appBar: {
+    flexGrow: 1,
     zIndex: theme.zIndex.drawer + 1,
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.sharp,
@@ -15,6 +17,7 @@ const styles = theme => ({
     }),
   },
   appBarShift: {
+    flexGrow: 1,
     // width: `calc(100% - ${drawerWidth}px)`,
     marginLeft: drawerWidth,
     transition: theme.transitions.create(['margin', 'width'], {
@@ -28,31 +31,36 @@ const styles = theme => ({
   hide: {
     display: 'none',
   },
+  titleGrow: {
+    flexGrow: 1
+  }
 })
 
-
 const Header = (props) => {
-  const { classes, isDrawerOpen } = props
+  const { classes, isDrawerOpen, isAuth } = props
+  const hideDrawerButton = props.location.pathname === '/login'
 
   return (
-    <AppBar position="fixed"
-     className={classNames(classes.appBar, {
-       [classes.appBarShift]: isDrawerOpen,
-     })}
+    <AppBar 
+      position="fixed"
+      className={classNames(classes.appBar, {
+        [classes.appBarShift]: isDrawerOpen,
+      })}
     >
       <Toolbar>
         <IconButton
           color="inherit"
           aria-label="Open/Close drawer"
-          onClick={props.handleDrawerOpen}
-          className={classNames(classes.menuButton, false && classes.hide)}
+          onClick={() => props.handleDrawerOpen()}
+          className={classNames(classes.menuButton, hideDrawerButton && classes.hide)}
         >
           <MenuIcon />
         </IconButton>
 
-        <Typography variant="h6" color="inherit" noWrap>
+        <Typography variant="h6" color="inherit" className={classes.titleGrow} noWrap>
           CookBook
         </Typography>
+        <Button color="inherit" className={classNames(!isAuth && classes.hide)} onClick={props.logout}>Logout</Button>
       </Toolbar>
     </AppBar>
   )
@@ -60,4 +68,4 @@ const Header = (props) => {
   
 
 
-export default withStyles(styles)(Header)
+export default withRouter(withStyles(styles)(Header))

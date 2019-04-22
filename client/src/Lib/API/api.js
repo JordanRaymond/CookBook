@@ -17,50 +17,8 @@ const login = async (email, password) => {
             successful: true, 
             message: res.data.message 
         }
-    }).catch(error => {
-        if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            if(error.response.status === 401) return {
-                successful: false, 
-                message: error.response.data.message 
-            }
-
-            // conso10le.log(error.response.data);
-            // console.log(error.response.status);
-            // console.log(error.response.headers);
-        } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-
-            throw new Error('The request was made but no response was received')
-            // console.log(error.request)
-        } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log('Error', error.message)
-        }
-
-        console.error('Request config: ')
-        console.log(error.config)
-    })
+    }).catch(axiosErrorHandler)
 }
-
-// const login = (username, password) => {
-//     var data = null
-
-//     var xhr = new XMLHttpRequest()
-//     xhr.withCredentials = true
-
-//     xhr.addEventListener("readystatechange", function () {
-//     if (this.readyState === 4) {
-//         console.log(this.responseText);
-//     }
-//     })
-
-//     xhr.open("POST", "http://192.168.2.89:5000/user/login?email=test@test.com&password=123456")
-//     xhr.send(data)
-// }
 
 const isAuthenticate = async () => {
     const config = {
@@ -72,34 +30,59 @@ const isAuthenticate = async () => {
             successful: true, 
             message: res.data.message 
         }
-
-    }).catch(error => {
-        if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            if(error.response.status === 401) return {
-                successful: false, 
-                message: error.response.data.message 
-            }
-
-            // console.log(error.response.data);
-            // console.log(error.response.status); 
-            // console.log(error.response.headers);
-        } else if (error.request) {
-            // The request was made but no response was received
-            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-            // http.ClientRequest in node.js
-
-            throw new Error('The request was made but no response was received')
-            
-            // console.log(error.request)
-        } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log('Error', error.message)
+        else { 
+            if(res.status === 401)
+                window.alert('401')
         }
-        console.error('Request config: ')
-        console.log(error.config)
-    })
+        
+
+    }).catch(axiosErrorHandler)
+}
+
+const logout = async () => {
+    const config = {
+        withCredentials : true,
+    }
+
+    return axios.get(`${serverUrl}/user/logout`, config).then(res => {
+        if(res.status === 200) return {
+            successful: true, 
+            message: res.data.message 
+        }
+        else { 
+            if(res.status === 401)
+                window.alert('401')
+        }
+        
+    }).catch(axiosErrorHandler)
+}
+
+const axiosErrorHandler = error => {
+    if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        if(error.response.status === 401) return {
+            successful: false, 
+            message: error.response.data.message 
+        }
+
+        // console.log(error.response.data);
+        // console.log(error.response.status); 
+        // console.log(error.response.headers);
+    } else if (error.request) {
+        // The request was made but no response was received
+        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+        // http.ClientRequest in node.js
+
+        throw new Error('Can\'t connect to the server or the server did not respond')    
+        // console.log(error.request)
+    } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error', error.message)
+    }
+
+    console.error('Request config: ')
+    console.log(error.config)
 }
 
 const getCookie = (cname) => {
@@ -119,4 +102,4 @@ const getCookie = (cname) => {
     return null
 }
 
-export { login, isAuthenticate } 
+export { login, isAuthenticate, logout } 

@@ -6,7 +6,9 @@ import {
 } from '@material-ui/core'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import { withRouter, Redirect } from 'react-router-dom' 
-import { withSnackbar } from 'notistack';
+import { withSnackbar } from 'notistack'
+import ReactLoading from 'react-loading'
+
 import validate from '../../Lib/validate.js'
 import { login } from '../../Lib/API/api'
 
@@ -50,6 +52,7 @@ class SignIn extends Component {
 
         this.state = {
           isAuth: props.isAuth,
+          waitingForRes: false,
           formIsValid: false,
           formControls: {
             email: {
@@ -134,9 +137,14 @@ class SignIn extends Component {
 
       if(formIsValid) {
         try {
+          this.setState({waitingForRes: true})
           const {successful, message} = await login(controls.email.value, controls.password.value)
-          if(successful) this.props.updateAuthState(true)
-          else {
+          
+          if(successful) {
+            this.props.history.push('/')
+            this.props.updateAuthState(true)
+          } else {
+            this.setState({waitingForRes: false})   
             this.props.enqueueSnackbar(message, {
               variant: 'error',
               persist: true,
@@ -144,13 +152,20 @@ class SignIn extends Component {
                   <Button size="small">{'Dismiss'}</Button>
               ),
             })
-          }
-          // window.alert(message)
+          }         
         } catch(err) {
-          console.log(err)
+          console.log(`Auth.js: login err: ${err}`)
+          
+          this.setState({waitingForRes: false})            
+          this.props.enqueueSnackbar(err.message, {
+            variant: 'error',
+            persist: true,
+            action: (
+                <Button size="small">{'Dismiss'}</Button>
+            ),
+          })
         }
       }
-      // TODO API submit and Show server errors msg 
     }
     
     showErrorsMsg = errors => (
@@ -177,7 +192,10 @@ class SignIn extends Component {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              Sign in
+              {this.state.waitingForRes 
+                ? <ReactLoading type="bars" color='#3f51b5' className={classes.spinner} />
+                : 'Sign in'
+              }
             </Typography>
 
             <form className={classes.form}> 
@@ -233,7 +251,6 @@ class SignIn extends Component {
         </main>
       )
   }
-
 }
 
 SignIn.propTypes = {

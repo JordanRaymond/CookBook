@@ -3,25 +3,23 @@ import {
   BrowserRouter as Router,
   Route,
   Redirect,
-  Switch
+  Switch,
 } from "react-router-dom"
-import CssBaseline from '@material-ui/core/CssBaseline'
-import { withStyles } from '@material-ui/core/styles'
+import { CssBaseline, withStyles, Button } from '@material-ui/core'
 import ReactLoading from 'react-loading'
+import { withSnackbar } from 'notistack'
+
 import { Header } from './Layouts'
 import RecipeDrawer from './Recipe/RecipeDrawer'
 import PrivateRoute from './Router/PrivateRoute'
 import Auth from './Auth/Auth'
-import { isAuthenticate } from '../Lib/API/api'
+import { isAuthenticate, logout } from '../Lib/API/api'
 
 import 'typeface-roboto'
 
 import { recipes } from '../Recipes.js'
 
 const styles = theme => ({
-  root: {
-
-  },
   flex: {
     display: 'flex',
   },
@@ -46,10 +44,33 @@ class App extends Component {
     try {
        const { successful, message } = await isAuthenticate()    
        this.setState({ isAuth: successful })
-       window.alert(`App componentDidMount isAuth state: ${successful}`)
     } catch(err) {
-       console.log(err)
-       window.alert(err)
+        this.props.enqueueSnackbar(err.message, {
+          variant: 'error',
+          persist: true,
+          action: (
+              <Button size="small">{'Dismiss'}</Button>
+           ),
+        })
+
+        console.log(err)
+    }
+  }
+
+   logoutUser = async () => {
+    try {
+       const { successful } = await logout()    
+       this.setState({ isAuth: !successful })
+    } catch(err) {
+        this.props.enqueueSnackbar(err.message, {
+          variant: 'error',
+          persist: true,
+          action: (
+              <Button size="small">{'Dismiss'}</Button>
+           ),
+        })
+
+         console.log(`App.js logout err: ${err}`)
     }
   }
 
@@ -81,12 +102,15 @@ class App extends Component {
     }, {}))
   }
 
+  hideDrawerButton = () => {
+    // return window.location.pathname === '/login'
+    return !this.state.isAuth
+  }
+
   render() {
     const { classes } = this.props
     const recipesData = this.getRecipesBySiteName()
     const { isDrawerOpen, isDrawerLocked, isAuth } = this.state
-
-    console.log(`App isAuth: ${isAuth} ${window.location}`)
 
     let recipeDrawerProps = { 
       recipesData: recipesData, 
@@ -99,11 +123,17 @@ class App extends Component {
     return (
       <div className={classes.root}>
         <CssBaseline />
-        <Header isDrawerOpen={isDrawerOpen} handleDrawerOpen={this.handleDrawer}/>
         <Router >
-          <Switch>
-            {/*Recipe rendered in the Drawer*/}
-            <div className={classes.flex}>
+          <Header 
+            isDrawerOpen={isDrawerOpen}
+            hideDrawerButton={this.hideDrawerButton()}
+            handleDrawerOpen={this.handleDrawer} 
+            isAuth={isAuth} 
+            logout={this.logoutUser}
+          />
+          <div className={classes.flex}>
+            <Switch>
+              {/*Recipe rendered in the Drawer*/}
               { 
                 isAuth === undefined ? (
                   <Fragment>
@@ -117,8 +147,8 @@ class App extends Component {
                   </Fragment>
                 )
               }
-            </div>
-          </Switch>
+            </Switch>
+          </div>
         </Router>
       </div>
     )
@@ -126,4 +156,4 @@ class App extends Component {
 }
 
 
-export default withStyles(styles)(App)
+export default withSnackbar(withStyles(styles)(App))
