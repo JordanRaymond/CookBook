@@ -13,6 +13,7 @@ import { Header } from './Layouts'
 import RecipeDrawer from './Recipe/RecipeDrawer'
 import PrivateRoute from './Router/PrivateRoute'
 import Auth from './Auth/Auth'
+import Register from './Auth/Register'
 import { isAuthenticate, logout } from '../Lib/API/api'
 
 import 'typeface-roboto'
@@ -144,6 +145,7 @@ class App extends Component {
                   <Fragment>
                     <PrivateRoute exact path="/" component={RecipeDrawer} recipeDrawerProps={recipeDrawerProps} isAuth={isAuth} redirectTo="/login" />
                     <Route exact path="/login" render={ props => <Auth isAuth={isAuth} updateAuthState={this.updateAuthState} /> } />
+                    <Route exact path="/register" render={ props => <Register isAuth={isAuth} updateAuthState={this.updateAuthState} /> } />
                   </Fragment>
                 )
               }

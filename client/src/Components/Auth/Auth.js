@@ -145,6 +145,7 @@ class SignIn extends Component {
             this.props.updateAuthState(true)
           } else {
             this.setState({waitingForRes: false})   
+
             this.props.enqueueSnackbar(message, {
               variant: 'error',
               persist: true,
@@ -172,7 +173,7 @@ class SignIn extends Component {
       errors.map(error => (
         (errors.length === 1 || error.rule !== 'isRequired') 
         && 
-        <FormHelperText id="password-error-text" key={ error.msg }>{error.msg}</FormHelperText> 
+        <FormHelperText id="password-error-text" key={ error.message }>{error.message}</FormHelperText> 
       ))
     )
 
@@ -255,6 +256,6 @@ class SignIn extends Component {
 
 SignIn.propTypes = {
   classes: PropTypes.object.isRequired,
-};
+}
 
 export default withSnackbar(withRouter(withStyles(styles)(SignIn)))
