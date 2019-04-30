@@ -10,41 +10,10 @@ import { withSnackbar } from 'notistack'
 import ReactLoading from 'react-loading'
 
 import validate from '../../Lib/validate.js'
+import forms from '../../Lib/forms'
 import { login } from '../../Lib/API/api'
 
-const styles = theme => ({
-  main: {
-    width: 'auto',
-    display: 'block', // Fix IE 11 issue.
-    marginLeft: theme.spacing.unit * 3,
-    marginRight: theme.spacing.unit * 3,
-    [theme.breakpoints.up(400 + theme.spacing.unit * 3 * 2)]: {
-      width: 400,
-      marginLeft: 'auto',
-      marginRight: 'auto',
-    },
-  },
-  paper: {
-    marginTop: theme.spacing.unit * 8,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 3}px ${theme.spacing.unit * 3}px`,
-  },
-  avatar: {
-    margin: theme.spacing.unit,
-    backgroundColor: theme.palette.secondary.main,
-  },
-  form: {
-    width: '100%', // Fix IE 11 issue.
-    marginTop: theme.spacing.unit,
-  },
-  submit: {
-    marginTop: theme.spacing.unit * 3,
-  },
-  toolbar: theme.mixins.toolbar,
-
-})
+import Login from './Login'
 
 class SignIn extends Component {
     constructor(props) {
@@ -54,6 +23,7 @@ class SignIn extends Component {
           isAuth: props.isAuth,
           waitingForRes: false,
           formIsValid: false,
+
           formControls: {
             email: {
               value: '',
@@ -177,79 +147,19 @@ class SignIn extends Component {
       ))
     )
 
-  render() {
-    const { classes, isAuth } = this.props
+    checkControlHaveErrors = control => (
+      control.touched && !control.isValid
+    )
+  
 
-    let isEmailValid = this.state.formControls.email.touched && !this.state.formControls.email.isValid
-    let isPasswordValid = this.state.formControls.password.touched && !this.state.formControls.password.isValid
+  render() {
+    const { isAuth } = this.props
+
     console.log(`Auth isAuth: ${isAuth} ${window.location}`)
     
     return (
         isAuth === true ? <Redirect to="/" exact /> :      
-        <main className={classes.main}>
-          <div className={classes.toolbar} />
-          <Paper className={classes.paper}>
-            <Avatar className={classes.avatar}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5">
-              {this.state.waitingForRes 
-                ? <ReactLoading type="bars" color='#3f51b5' className={classes.spinner} />
-                : 'Sign in'
-              }
-            </Typography>
-
-            <form className={classes.form}> 
-              <FormControl margin="normal" error={ isEmailValid } required fullWidth>
-                <InputLabel htmlFor="email" >Email Address</InputLabel>
-                <Input 
-                  id="email" 
-                  name="email" 
-                  autoComplete="email" 
-                  autoFocus={false} // TODO: if autofocus true and data set by browser and user click outside window, email value would be empty and send error 
-                  value={this.state.formControls.email.value} 
-                  onChange={this.handleInputChange}
-                  onBlur={this.handleInputBlur} 
-                  error={ isEmailValid }
-                  aria-describedby="email-error-text"
-                />
-                { 
-                  this.showErrorsMsg(this.state.formControls.email.errors)
-                }
-              </FormControl>
-              <FormControl margin="normal" error={ isPasswordValid } required fullWidth>
-                <InputLabel htmlFor="password">Password</InputLabel>
-                <Input
-                  id="password" 
-                  name="password" 
-                  autoComplete="current-password" 
-                  type="password" 
-                  value={this.state.formControls.password.value} 
-                  onChange={this.handleInputChange}
-                  onBlur={this.handleInputBlur}
-                  error={ isPasswordValid }
-                  aria-describedby="password-error-text"
-                />
-                {
-                  this.showErrorsMsg(this.state.formControls.password.errors)
-                }
-              </FormControl>
-              <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Remember me"
-              />
-              <Button
-                onClick={this.handleSubmit}
-                fullWidth
-                variant="contained"
-                color="primary"
-                className={classes.submit}
-              >
-                Sign in
-              </Button>
-            </form>
-          </Paper>
-        </main>
+        <Login />
       )
   }
 }
@@ -258,4 +168,4 @@ SignIn.propTypes = {
   classes: PropTypes.object.isRequired,
 }
 
-export default withSnackbar(withRouter(withStyles(styles)(SignIn)))
+export default withSnackbar(withRouter(SignIn))

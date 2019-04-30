@@ -8,7 +8,7 @@ import { withRouter, Redirect } from 'react-router-dom'
 import { withSnackbar } from 'notistack'
 import ReactLoading from 'react-loading'
 
-import validate from '../../Lib/validate.js'
+import validate from '../../Lib/validate'
 import { register, login } from '../../Lib/API/api'
 
 const styles = theme => ({
