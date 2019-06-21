@@ -1,14 +1,14 @@
 import React, { Component } from 'react'
 import {
-    Avatar, Button, FormControl, FormControlLabel, FormHelperText, Checkbox,
-    Input, InputLabel, Paper, Typography, withStyles
+    Avatar, Button, FormControl, FormControlLabel, Checkbox,
+    Input, InputLabel, Paper, Typography, withStyles, Link
 } from '@material-ui/core'
+import { withRouter, Redirect, Link as RouterLink } from 'react-router-dom'
 import { LockOutlined as LockOutlinedIcon } from '@material-ui/icons'
-import { withRouter, Redirect } from 'react-router-dom'
 import { withSnackbar } from 'notistack'
 import ReactLoading from 'react-loading'
 
-import validate from '../../Lib/validate'
+import forms from '../../Lib/forms'
 import { register, login } from '../../Lib/API/api'
 
 const styles = theme => ({
@@ -106,75 +106,37 @@ class Register extends Component {
         }
     } 
 
-    // Validation 
     handleInputBlur = event => {
-      const name = event.target.name
-
-      const updatedControls = {
-        ...this.state.formControls
-      }
-
-      let updatedFormElement = {
-        ...updatedControls[name]
-      }
-      updatedFormElement.touched = true
-      
-      updatedFormElement = { ...updatedFormElement, ...validate(updatedFormElement.value, updatedFormElement.validationRules) } 
-      updatedControls[name] = updatedFormElement
-      
+      const updatedFormInputs = forms.validateInput(event, this.state.formControls)
+      const formIsValid = forms.checkFormIsValid(updatedFormInputs)
+  
       this.setState({
-        formControls: updatedControls
+        formControls: updatedFormInputs,
+        formIsValid
       })
-      
-      this.checkFormIsValid(updatedControls)
     }
-
+  
     handleInputChange = event => {
-      const name = event.target.name
-      const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
-
-      const updatedControls = {
-        ...this.state.formControls
-      }
-
-      const updatedFormElement = {
-        ...updatedControls[name]
-      }
-
-      updatedFormElement.value = value
-      updatedControls[name] = updatedFormElement
-
+      const updatedFormInputs = forms.handleInputChange(event, this.state.formControls)
+  
       this.setState({
-        formControls: updatedControls,
+        formControls: updatedFormInputs,
       })
-    }
-
-    checkFormIsValid = (updatedControls) => {
-        const controls = updatedControls ? updatedControls : {
-            ...this.state.formControls
-        }
-    
-        let formIsValid = true
-        for (let inputIdentifier in controls) {
-            formIsValid = controls[inputIdentifier].isValid && formIsValid
-        }
-
-        this.setState({formIsValid})
     }
 
     handleSubmit = async  event => {
       event.preventDefault()
       
-      const controls = {
+      const formInputs = {
         ...this.state.formControls
       }
+  
+      const formIsValid = forms.checkFormIsValid(formInputs)
 
-      this.checkFormIsValid()
-
-      if(this.state.formIsValid) {
+      if(formIsValid) {
         try {
           this.setState({waitingForRes: true})
-          const {successful, message} = await login(controls.email.value, controls.password.value)
+          const {successful, message} = await login(formInputs.email.value, formInputs.password.value)
           
           if(successful) {
             this.props.history.push('/')
@@ -204,18 +166,6 @@ class Register extends Component {
       }
     }
     
-    showErrorsMsg = errors => (
-      errors.map(error => (
-        (errors.length === 1 || error.rule !== 'isRequired') 
-        && 
-        <FormHelperText id="username-error-text" key={ error.message }>{error.message}</FormHelperText> // TODO: fix id
-      ))
-    )
-    
-    checkControlHaveErrors = control => (
-        control.touched && !control.isValid
-    )
-    
     setMustMatchRule = () => {
         const controls = {
             ...this.state.formControls
@@ -225,13 +175,16 @@ class Register extends Component {
         this.setState({formControls: controls}) 
     }
 
+    loginLink = props => <RouterLink to="/login" {...props} />
+
+
     render() {
         const { classes, isAuth } = this.props
         
-        const doesEmailHaveErrors = this.checkControlHaveErrors(this.state.formControls.registrationEmail) 
-        const doesPasswordHaveErrors = this.checkControlHaveErrors(this.state.formControls.password)
-        const doesPasswordConHaveErrors = this.checkControlHaveErrors(this.state.formControls.passwordConfirmation)
-        const doesUsernameHaveErrors = this.checkControlHaveErrors(this.state.formControls.username)
+        const doesEmailHaveErrors = forms.checkControlHaveErrors(this.state.formControls.registrationEmail) 
+        const doesPasswordHaveErrors = forms.checkControlHaveErrors(this.state.formControls.password)
+        const doesPasswordConHaveErrors = forms.checkControlHaveErrors(this.state.formControls.passwordConfirmation)
+        const doesUsernameHaveErrors = forms.checkControlHaveErrors(this.state.formControls.username)
         
 
         console.log(`Register isAuth: ${isAuth} ${window.location}`)
@@ -250,7 +203,9 @@ class Register extends Component {
                         : 'Register'
                     }
                     </Typography>
-
+                    <Link variant="subtitle2" component={this.loginLink}>
+                      Already have an account? Login.
+                    </Link>
                     <form className={classes.form}> 
                     <FormControl margin="normal" error={ doesEmailHaveErrors } required fullWidth>
                         <InputLabel htmlFor="registrationEmail" >Email Address</InputLabel>
@@ -265,7 +220,7 @@ class Register extends Component {
                         aria-describedby="registration-email-error-text"
                         />
                         { 
-                        this.showErrorsMsg(this.state.formControls.registrationEmail.errors)
+                        forms.showErrorsMsg(this.state.formControls.registrationEmail.errors)
                         }
                     </FormControl>
                     <FormControl margin="normal" error={ doesUsernameHaveErrors } required fullWidth>
@@ -281,7 +236,7 @@ class Register extends Component {
                         aria-describedby="username-error-text"
                         />
                         { 
-                        this.showErrorsMsg(this.state.formControls.username.errors)
+                        forms.showErrorsMsg(this.state.formControls.username.errors)
                         }
                     </FormControl>
                     <FormControl margin="normal" error={ doesPasswordHaveErrors } required fullWidth>
@@ -298,7 +253,7 @@ class Register extends Component {
                         aria-describedby="password-error-text"
                         />
                         {
-                        this.showErrorsMsg(this.state.formControls.password.errors)
+                        forms.showErrorsMsg(this.state.formControls.password.errors)
                         }
                     </FormControl>
                     <FormControl margin="normal" error={ doesPasswordConHaveErrors } required fullWidth>
@@ -314,7 +269,7 @@ class Register extends Component {
                         aria-describedby="passwordConfirmation-error-text"
                         />
                         {
-                        this.showErrorsMsg(this.state.formControls.passwordConfirmation.errors)
+                        forms.showErrorsMsg(this.state.formControls.passwordConfirmation.errors)
                         }
                     </FormControl>
                     <FormControlLabel

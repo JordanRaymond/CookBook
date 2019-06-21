@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
 import {
-    Avatar, Button, FormControl, FormControlLabel, FormHelperText, Checkbox,
-    Input, InputLabel, Paper, Typography, withStyles 
+    Avatar, Button, FormControl, FormControlLabel, Checkbox,
+    Input, InputLabel, Paper, Typography, withStyles, Link 
 } from '@material-ui/core'
+import { Link as RouterLink } from 'react-router-dom'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import ReactLoading from 'react-loading'
+import { withSnackbar } from 'notistack'
 import forms from '../../Lib/forms'
-import validate from '../../Lib/validate'
 import { login } from '../../Lib/API/api'
 
 const styles = theme => ({
@@ -79,66 +80,39 @@ class Login extends Component {
     }
   }
 
-  // Validation 
   handleInputBlur = event => {
-    const name = event.target.name
-
-    const updatedControls = {
-      ...this.state.formControls
-    }
-
-    let updatedFormElement = {
-      ...updatedControls[name]
-    }
-    updatedFormElement.touched = true
-    
-    updatedFormElement = { ...updatedFormElement, ...validate(updatedFormElement.value, updatedFormElement.validationRules) } 
-    updatedControls[name] = updatedFormElement
+    const updatedFormInputs = forms.validateInput(event, this.state.formControls)
+    const formIsValid = forms.checkFormIsValid(updatedFormInputs)
 
     this.setState({
-      formControls: updatedControls
+      formControls: updatedFormInputs,
+      formIsValid
     })
   }
 
   handleInputChange = event => {
-    const name = event.target.name
-    const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
-
-    const updatedControls = {
-      ...this.state.formControls
-    }
-
-    const updatedFormElement = {
-      ...updatedControls[name]
-    }
-
-    updatedFormElement.value = value
-    updatedControls[name] = updatedFormElement
+    const updatedFormInputs = forms.handleInputChange(event, this.state.formControls)
 
     this.setState({
-      formControls: updatedControls,
+      formControls: updatedFormInputs,
     })
   }
 
   handleSubmit = async  event => {
     event.preventDefault()
     
-    const controls = {
+    const formInputs = {
       ...this.state.formControls
     }
 
-    let formIsValid = true
-    for (let inputIdentifier in controls) {
-      formIsValid = controls[inputIdentifier].isValid && formIsValid
-    }
+    const formIsValid = forms.checkFormIsValid(formInputs)
 
     if(formIsValid) {
       try {
         this.setState({waitingForRes: true})
-        const {successful, message} = await login(controls.email.value, controls.password.value)
+        const {successful, message} = await login(formInputs.email.value, formInputs.password.value)
         
         if(successful) {
-          this.props.history.push('/')
           this.props.updateAuthState(true)
         } else {
           this.setState({waitingForRes: false})   
@@ -152,7 +126,7 @@ class Login extends Component {
           })
         }         
       } catch(err) {
-        console.log(`Auth.js: login err: ${err}`)
+        console.log(`Login.js: login err: ${err}`)
         
         this.setState({waitingForRes: false})            
         this.props.enqueueSnackbar(err.message, {
@@ -165,25 +139,15 @@ class Login extends Component {
       }
     }
   }
-  
-  showErrorsMsg = errors => (
-    errors.map(error => (
-      (errors.length === 1 || error.rule !== 'isRequired') 
-      && 
-      <FormHelperText id="password-error-text" key={ error.message }>{error.message}</FormHelperText> 
-    ))
-  )
 
-  checkControlHaveErrors = control => (
-    control.touched && !control.isValid
-  )
+  registerLink = props => <RouterLink to="/register" {...props} />
   
   render() {
     const { classes } = this.props
     const formControls = this.state.formControls
 
-    const emailHaveErrors = this.checkControlHaveErrors(formControls.email) 
-    const passwordHaveErrors = this.checkControlHaveErrors(formControls.password) 
+    const emailHaveErrors = forms.checkControlHaveErrors(formControls.email) 
+    const passwordHaveErrors = forms.checkControlHaveErrors(formControls.password) 
 
     return (
       <main className={classes.main}>
@@ -198,7 +162,9 @@ class Login extends Component {
                 : 'Sign in'
               }
             </Typography>
-
+            <Link variant="subtitle2" component={this.registerLink}>
+              Don't have an account? Register.
+            </Link>
             <form className={classes.form}> 
               <FormControl margin="normal" error={ emailHaveErrors } required fullWidth>
                 <InputLabel htmlFor="email" >Email Address</InputLabel>
@@ -208,13 +174,13 @@ class Login extends Component {
                   autoComplete="email" 
                   autoFocus={false} // TODO: if autofocus true and data set by browser and user click outside window, email value would be empty and send error 
                   value={formControls.email.value} 
-                  onChange={forms.handleInputChange}
+                  onChange={this.handleInputChange}
                   onBlur={this.handleInputBlur} 
                   error={ emailHaveErrors }
                   aria-describedby="email-error-text"
                 />
                 { 
-                  this.showErrorsMsg(formControls.email.errors)
+                  forms.showErrorsMsg(formControls.email.errors)
                 }
               </FormControl>
               <FormControl margin="normal" error={ passwordHaveErrors } required fullWidth>
@@ -225,13 +191,13 @@ class Login extends Component {
                   autoComplete="current-password" 
                   type="password" 
                   value={formControls.password.value} 
-                  onChange={forms.handleInputChange}
+                  onChange={this.handleInputChange}
                   onBlur={this.handleInputBlur}
                   error={ passwordHaveErrors }
                   aria-describedby="password-error-text"
                 />
                 {
-                  this.showErrorsMsg(formControls.password.errors)
+                  forms.showErrorsMsg(formControls.password.errors)
                 }
               </FormControl>
               <FormControlLabel
@@ -244,6 +210,7 @@ class Login extends Component {
                 variant="contained"
                 color="primary"
                 className={classes.submit}
+                disabled={!this.state.formIsValid}
               >
                 Sign in
               </Button>
@@ -254,4 +221,4 @@ class Login extends Component {
   }
 }
 
-export default withStyles(styles)(Login)
+export default withSnackbar(withStyles(styles)(Login))

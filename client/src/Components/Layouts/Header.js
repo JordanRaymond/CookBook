@@ -36,9 +36,13 @@ const styles = theme => ({
   }
 })
 
+const shouldDisplayDrawer = (location) => (
+   location.pathname === '/login' || location.pathname === '/register'
+)
+
 const Header = (props) => {
   const { classes, isDrawerOpen, isAuth } = props
-  const hideDrawerButton = props.location.pathname === '/login'
+  const hideDrawerButton = shouldDisplayDrawer(props.location)
 
   return (
     <AppBar 

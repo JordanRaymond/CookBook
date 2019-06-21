@@ -1,16 +1,17 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const passport = require('passport')
-const flash = require('connect-flash')
+// const flash = require('connect-flash') TODO: unistall 
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
 const morgan = require('morgan')
 const app = express()
 const config = require('./config/config')
+require('dotenv').config()
 
 // Cors definition 
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://192.168.2.43:3000') // TODO: setup env variable
+  res.setHeader('Access-Control-Allow-Origin', 'http://192.168.2.89:3000') // TODO: setup env variable
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, cookie, set-cookie')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE')
   res.setHeader('Access-Control-Allow-Credentials', true)
@@ -18,7 +19,7 @@ app.use((req, res, next) => {
   next()
 })
 
-// Passport Config
+// Passport Config, Db init
 require('./config/passport')
 
 // Express body parser
@@ -41,18 +42,6 @@ app.use(
 // Passport middleware
 app.use(passport.initialize())
 app.use(passport.session())
-
-// Connect flash
-// app.use(flash())
-
-// Global variables
-// app.use((req, res, next) => {
-//   res.locals.success_msg = req.flash('success_msg')
-//   res.locals.error_msg = req.flash('error_msg')
-//   res.locals.error = req.flash('error')
-
-//   next()
-// })
 
 // ======== DEBUG ============
 // app.use((req, res, next) => {
@@ -77,8 +66,6 @@ app.use(passport.session())
 
 // Routes
 app.use(require('./routes'))
-
-const { sequelize } = require('./models/sequelize')
 
 const PORT = process.env.PORT || 5000
 app.listen(PORT, console.log(`Server started on port ${PORT}`))

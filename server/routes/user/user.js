@@ -5,23 +5,46 @@ const passport = require('passport')
 
 
 router.post('/register', (req, res) => {
-  const { name, email, password, password2 } = req.body;
+  const { email, username, password } = req.body
   let errors = []
 
-  if (!name || !email || !password || !password2) {
-    errors.push({ msg: 'Please enter all fields' })
-  }
+  if (!email || !username || !password ) {
+    errors.push({ message: 'Please enter all fields' })
+  } else {
+    
+    // Email
+    const emailReg = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    if(!emailReg.test(String(email))) {
+      errors.push({ message: 'Invalid email format' })  
+    }
 
-  if (password != password2) {
-    errors.push({ msg: 'Passwords do not match' })
-  }
+    // Password
+    if (password.length < 6) {
+      errors.push({ message: 'Password must have least 6 characters' })
+    }
+  
+    const passwordReg = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])\S[0-9a-zA-Z]*$/
+    if(!passwordReg.test(String(password))) {
+      errors.push({ message: 'Invalid password format, must have one uppercase letter and one number' })  
+    }
 
-  if (password.length < 6) {
-    errors.push({ msg: 'Password must be at least 6 characters' })
+    // Username
+    if (username.length < 6) {
+      errors.push({ message: 'Username must have at least 6 characters' })
+    }
+
+    const isAlphaNumReg = /^\S[a-zA-Z0-9]*$/
+    if(!isAlphaNumReg.test(String(username))) {
+      errors.push({ message: 'Invalid username format, only alphanumeric characters' })
+    }
   }
 
   if (errors.length > 0) {
-    
+    return res.status(400).json({ 
+      success : false, 
+      message : `Validation of the Register form inputs failed with ${errors.length} error(s)` ,
+      errors 
+    })
   } else {
     console.log('Validated')
     // User.findOne({ email: email }).then(user => {
@@ -72,7 +95,7 @@ router.post('/login', (req, res, next) => {
     if (! user) {
       return res.status(401).json({ 
         success : false, 
-        message : 'Invalide email or paswword' 
+        message : 'Invalide email or passwword' 
       })
     }
  

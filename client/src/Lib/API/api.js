@@ -32,7 +32,7 @@ const isAuthenticate = async () => {
         }
         else { 
             if(res.status === 401)
-                window.alert('401')
+                window.alert('401') // for axios, 401 is an error...
         }
         
 
@@ -58,6 +58,7 @@ const logout = async () => {
 }
 
 const axiosErrorHandler = error => {
+    console.log(`error response: ${error.response}`)
     if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -66,9 +67,9 @@ const axiosErrorHandler = error => {
             message: error.response.data.message 
         }
 
-        // console.log(error.response.data);
-        // console.log(error.response.status); 
-        // console.log(error.response.headers);
+        // console.log(error.response.data)
+        // console.log(error.response.status)
+        // console.log(error.response.headers)
     } else if (error.request) {
         // The request was made but no response was received
         // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
