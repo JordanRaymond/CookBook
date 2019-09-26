@@ -20,6 +20,26 @@ const login = async (email, password) => {
     }).catch(axiosErrorHandler)
 }
 
+const register = async (email, username, password, passwordConf) => {
+    const reqBody = {
+        email,
+        username,
+        password,
+        passwordConf
+    }
+
+    const config = {
+        withCredentials : true,
+    }
+
+    return axios.post(`${serverUrl}/user/register`, reqBody, config).then(res => {
+        if(res.status === 200) return {
+            successful: true, 
+            message: res.data.message 
+        }
+    }).catch(axiosErrorHandler)
+}
+
 const isAuthenticate = async () => {
     const config = {
         withCredentials : true,
@@ -58,14 +78,27 @@ const logout = async () => {
 }
 
 const axiosErrorHandler = error => {
-    console.log(`error response: ${error.response}`)
     if (error.response) {
+        console.log(`error response: ${error.response}`)
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        if(error.response.status === 401) return {
-            successful: false, 
-            message: error.response.data.message 
+
+        let successful = false
+        const status = error.response.status
+        let message = `server responded with a status of ${status}`
+
+        if(error.response.status === 401) {
+            successful = false 
+            message = error.response.data.message 
         }
+
+        if(error.response.status === 500 ) {
+            successful = false   
+            message = 'Oups, look like somthing went wrong on our server ¯\\_(ツ)_/¯'
+        }
+        
+        if(error.response.data.message) message = message = error.response.data.message
+        return { successful, status, message }
 
         // console.log(error.response.data)
         // console.log(error.response.status)
@@ -103,4 +136,4 @@ const getCookie = (cname) => {
     return null
 }
 
-export { login, isAuthenticate, logout } 
+export { login, register, isAuthenticate, logout } 

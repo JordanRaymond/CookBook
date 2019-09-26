@@ -7,6 +7,7 @@ import { Link as RouterLink } from 'react-router-dom'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import ReactLoading from 'react-loading'
 import { withSnackbar } from 'notistack'
+
 import forms from '../../Lib/forms'
 import { login } from '../../Lib/API/api'
 
@@ -115,28 +116,28 @@ class Login extends Component {
         if(successful) {
           this.props.updateAuthState(true)
         } else {
-          this.setState({waitingForRes: false})   
+            this.setState({waitingForRes: false})   
 
-          this.props.enqueueSnackbar(message, {
+            this.props.enqueueSnackbar(message, {
+              variant: 'error',
+              persist: true,
+              action: (
+                  <Button size="small">{'Dismiss'}</Button>
+                ),
+            })
+          }         
+        } catch(err) {
+          console.log(`Login.js: login err: ${err}`)
+        
+          this.setState({waitingForRes: false})            
+          this.props.enqueueSnackbar(err.message, {
             variant: 'error',
             persist: true,
             action: (
-                <Button size="small">{'Dismiss'}</Button>
+              <Button size="small">{'Dismiss'}</Button>
             ),
           })
-        }         
-      } catch(err) {
-        console.log(`Login.js: login err: ${err}`)
-        
-        this.setState({waitingForRes: false})            
-        this.props.enqueueSnackbar(err.message, {
-          variant: 'error',
-          persist: true,
-          action: (
-              <Button size="small">{'Dismiss'}</Button>
-          ),
-        })
-      }
+        }
     }
   }
 

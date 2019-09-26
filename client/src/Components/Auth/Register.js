@@ -3,13 +3,13 @@ import {
     Avatar, Button, FormControl, FormControlLabel, Checkbox,
     Input, InputLabel, Paper, Typography, withStyles, Link
 } from '@material-ui/core'
-import { withRouter, Redirect, Link as RouterLink } from 'react-router-dom'
+import { Redirect, Link as RouterLink } from 'react-router-dom'
 import { LockOutlined as LockOutlinedIcon } from '@material-ui/icons'
 import { withSnackbar } from 'notistack'
 import ReactLoading from 'react-loading'
 
 import forms from '../../Lib/forms'
-import { register, login } from '../../Lib/API/api'
+import { register } from '../../Lib/API/api'
 
 const styles = theme => ({
     main: {
@@ -130,16 +130,19 @@ class Register extends Component {
       const formInputs = {
         ...this.state.formControls
       }
-  
       const formIsValid = forms.checkFormIsValid(formInputs)
 
       if(formIsValid) {
         try {
           this.setState({waitingForRes: true})
-          const {successful, message} = await login(formInputs.email.value, formInputs.password.value)
+          const {successful, message} = await register(
+            formInputs.registrationEmail.value,
+            formInputs.username.value, 
+            formInputs.password.value,
+            formInputs.passwordConfirmation.value
+          )
           
           if(successful) {
-            this.props.history.push('/')
             this.props.updateAuthState(true)
           } else {
             this.setState({waitingForRes: false})   
@@ -181,13 +184,12 @@ class Register extends Component {
     render() {
         const { classes, isAuth } = this.props
         
-        const doesEmailHaveErrors = forms.checkControlHaveErrors(this.state.formControls.registrationEmail) 
-        const doesPasswordHaveErrors = forms.checkControlHaveErrors(this.state.formControls.password)
-        const doesPasswordConHaveErrors = forms.checkControlHaveErrors(this.state.formControls.passwordConfirmation)
-        const doesUsernameHaveErrors = forms.checkControlHaveErrors(this.state.formControls.username)
+        const emailHaveErrors = forms.checkControlHaveErrors(this.state.formControls.registrationEmail)
+        const usernameHaveErrors = forms.checkControlHaveErrors(this.state.formControls.username)
+        const passwordHaveErrors = forms.checkControlHaveErrors(this.state.formControls.password)
+        const passwordConfHaveErrors = forms.checkControlHaveErrors(this.state.formControls.passwordConfirmation)
         
-
-        console.log(`Register isAuth: ${isAuth} ${window.location}`)
+        // console.log(`Register isAuth: ${isAuth} ${window.location}`)
         
         return (
             isAuth === true ? <Redirect to="/" exact /> :              
@@ -207,7 +209,7 @@ class Register extends Component {
                       Already have an account? Login.
                     </Link>
                     <form className={classes.form}> 
-                    <FormControl margin="normal" error={ doesEmailHaveErrors } required fullWidth>
+                    <FormControl margin="normal" error={ emailHaveErrors } required fullWidth>
                         <InputLabel htmlFor="registrationEmail" >Email Address</InputLabel>
                         <Input 
                         id="registrationEmail" 
@@ -216,14 +218,14 @@ class Register extends Component {
                         value={this.state.formControls.registrationEmail.value} 
                         onChange={this.handleInputChange}
                         onBlur={this.handleInputBlur} 
-                        error={ doesEmailHaveErrors }
+                        error={ emailHaveErrors }
                         aria-describedby="registration-email-error-text"
                         />
                         { 
                         forms.showErrorsMsg(this.state.formControls.registrationEmail.errors)
                         }
                     </FormControl>
-                    <FormControl margin="normal" error={ doesUsernameHaveErrors } required fullWidth>
+                    <FormControl margin="normal" error={ usernameHaveErrors } required fullWidth>
                         <InputLabel htmlFor="username" >Username</InputLabel>
                         <Input 
                         id="username" 
@@ -232,14 +234,14 @@ class Register extends Component {
                         value={this.state.formControls.username.value} 
                         onChange={this.handleInputChange}
                         onBlur={this.handleInputBlur} 
-                        error={ doesUsernameHaveErrors }
+                        error={ usernameHaveErrors }
                         aria-describedby="username-error-text"
                         />
                         { 
                         forms.showErrorsMsg(this.state.formControls.username.errors)
                         }
                     </FormControl>
-                    <FormControl margin="normal" error={ doesPasswordHaveErrors } required fullWidth>
+                    <FormControl margin="normal" error={ passwordHaveErrors } required fullWidth>
                         <InputLabel htmlFor="password">Password</InputLabel>
                         <Input
                         id="password" 
@@ -249,14 +251,14 @@ class Register extends Component {
                         value={this.state.formControls.password.value} 
                         onChange={this.handleInputChange}
                         onBlur={this.handleInputBlur}
-                        error={ doesPasswordHaveErrors }
+                        error={ passwordHaveErrors }
                         aria-describedby="password-error-text"
                         />
                         {
                         forms.showErrorsMsg(this.state.formControls.password.errors)
                         }
                     </FormControl>
-                    <FormControl margin="normal" error={ doesPasswordConHaveErrors } required fullWidth>
+                    <FormControl margin="normal" error={ passwordConfHaveErrors } required fullWidth>
                         <InputLabel htmlFor="passwordConfirmation">Password confirmation</InputLabel>
                         <Input
                         id="passwordConfirmation" 
@@ -265,7 +267,7 @@ class Register extends Component {
                         value={this.state.formControls.passwordConfirmation.value} 
                         onChange={this.handleInputChange}
                         onBlur={(event) => {this.setMustMatchRule(); this.handleInputBlur(event)}}
-                        error={ doesPasswordConHaveErrors }
+                        error={ passwordConfHaveErrors }
                         aria-describedby="passwordConfirmation-error-text"
                         />
                         {
