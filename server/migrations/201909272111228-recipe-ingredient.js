@@ -1,10 +1,21 @@
-module.exports = (sequelize, DataTypes) => {
-  const RecipeIngredients = sequelize.define('RecipeIngredients', {
+'use strict';
+
+module.exports = {
+  up: (queryInterface, DataTypes) => {
+   return queryInterface.createTable('RecipeIngredients', {
     recipeIngredientId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
       unique: true
+    },
+    ingredientsListId: {
+      type: DataTypes.INTEGER,
+      references: {
+          model: 'IngredientsLists',
+          key: 'ingredientsListId'
+      },
+      allowNull: false,
     },
     name: {
       type: DataTypes.STRING,
@@ -34,17 +45,16 @@ module.exports = (sequelize, DataTypes) => {
           notEmpty: true,
       }
     },
-  })
+    createdAt: {
+      type: DataTypes.DATE
+    },
+    updatedAt: {
+      type: DataTypes.DATE
+    },
+   })
+  },
 
-     // Instacne function
-     RecipeIngredients.prototype.toJson = function() {
-      return {
-        name: this.name,
-        indication: this.indication,
-        mesure: this.mesure,
-        quantity: this.quantity
-      }
-    }
-
-  return RecipeIngredients
-}
+  down: (queryInterface, Sequelize) => {
+    return queryInterface.dropTable('RecipeIngredients');
+  }
+};

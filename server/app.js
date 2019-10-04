@@ -7,6 +7,8 @@ const cookieParser = require('cookie-parser')
 const morgan = require('morgan')
 const app = express()
 const config = require('./config/config')
+const { sequelize } = require('./models')
+
 require('dotenv').config()
 
 // Cors definition 
@@ -17,6 +19,15 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Credentials', true)
 
   next()
+})
+
+sequelize.authenticate().then(() => {
+  // Users.findOne({where: { email: 'test@test.com'}}).then(user => {
+  //       console.log(user.password)
+  // })
+  console.log('Connection has been established successfully.')
+}).catch(err => {
+  console.error('Unable to connect to the database:', err)
 })
 
 // Passport Config, Db init

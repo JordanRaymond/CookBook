@@ -1,10 +1,10 @@
 const express = require('express')
 const router = express.Router()
 const passport = require('passport')
-const { Users: User } = require('../../models/sequelize')
+const { Users: User, Recipes, StepsLists, IngredientsLists, Steps, RecipeIngredients } = require('../../models')
 const asyncMiddleware = require('../../utils/asyncMiddleware') 
-const areUserInputsValid = require('../../models/User/userValidation')
-// const jwt = require('jsonwebtoken') 
+const asyncForEach = require('../../utils/asyncForEach') 
+const areUserInputsValid = require('../../utils/userValidation')
 
 router.post('/register', asyncMiddleware( async(req, res, next) => {
   const errMsg = `Validation of the Register form inputs failed.`
@@ -19,7 +19,7 @@ router.post('/register', asyncMiddleware( async(req, res, next) => {
 
   const user = await createNewUser(email, username, password)
   return res.status(200).json({ 
-    message : `${user.email}`,
+    message : `${user.username}`,
   })
 }))
 
@@ -40,7 +40,7 @@ async function createNewUser(email, username, password) {
     password
   })
 
-  const hash = await newUser.hashPassword(password)
+  const hash = await User.hashPassword(password)
   newUser.password = hash
   
   return await newUser.save()
@@ -55,24 +55,62 @@ router.post('/login', (req, res, next) => {
     // Generate a JSON response reflecting authentication status
     if (! user) {
       return res.status(401).json({ 
-        success : false, 
         message : 'Invalide email or passwword' 
       })
     }
  
-    req.login(user, loginErr => {
+    req.login(user, async loginErr => {
       if (loginErr) {
         return next(loginErr)
       }
+      
+      let recipes = await getUserRecipes(user)
 
       return res.status(200).json({ 
-        success : true, 
         message : 'Authentication succeeded',
-        username: user.username
+        username: user.username,
+        recipes: recipes
       })
     })
   })(req, res, next)
 })
+
+async function getUserRecipes(user) {
+  let recipes = await Recipes.findAll({
+    where: {
+      userId: user.userId
+    }, 
+    include: [StepsLists, IngredientsLists]
+  }).catch(e => console.log(e))
+  
+  return await recipesToJson(recipes) 
+}
+
+async function recipesToJson(recipes) {
+  let formatedRecipes = []
+
+  await asyncForEach(recipes, async (recipe, i, arr) => {
+    let formatedRecipe = recipe.toJson()
+    let ingredients = {}
+    let steps = {}
+
+    await asyncForEach(recipe.IngredientsLists, async (list, i, arr) => {
+      let rawIngredients = await list.getRecipeIngredients()
+      ingredients[list.dataValues.title] = rawIngredients.map(ing => ing.toJson())
+    })
+
+    await asyncForEach(recipe.StepsLists, async (list, i, arr) => {
+      let rawSteps = await list.getSteps() 
+      steps[list.dataValues.title] = rawSteps.map(s => s.toJson())
+    })
+
+    formatedRecipe.ingredients = ingredients
+    formatedRecipe.steps = steps
+    formatedRecipes.push(formatedRecipe)
+  })  
+
+  return formatedRecipes
+}
 
 router.get('/isAuth', (req, res) => {
   if(req.isAuthenticated()) {

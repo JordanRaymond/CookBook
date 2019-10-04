@@ -2,7 +2,7 @@
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
 
-const { Users } = require('../models/sequelize')
+const { Users } = require('../models')
 
 passport.use(new LocalStrategy(
   {
@@ -22,11 +22,11 @@ passport.use(new LocalStrategy(
 }))
 
 passport.serializeUser((user, done) => {
-  done(null, user.id)
+  done(null, user.userId)
 })
 
-passport.deserializeUser((id, done) => {
-  Users.findOne({ where:{ id } }).then(user => {
+passport.deserializeUser((userId, done) => {
+  Users.findOne({ where:{ userId } }).then(user => {
     done(null, user)
   })
   .catch(done)

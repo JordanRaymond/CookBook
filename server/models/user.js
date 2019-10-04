@@ -2,6 +2,12 @@ const bcrypt = require('bcryptjs')
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('Users', {
+    userId: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      unique: true
+    },
     email: {
       type: DataTypes.STRING,
       unique: true,
@@ -27,15 +33,15 @@ module.exports = (sequelize, DataTypes) => {
       //   this.setDataValue('password', bcrypt.hashSync(val, 10)) 
       // }
     },
-
-
   })
 
+  // Instacne function
   User.prototype.validatePassword = async function(password) {
     return bcrypt.compare(password, this.getDataValue('password'))
   }
 
-  User.prototype.hashPassword = async function(password = this.getDataValue('password')) {
+  // Class function
+  User.hashPassword = async function(password = this.getDataValue('password')) {
     const salt = await bcrypt.genSalt(10)
     
     return bcrypt.hash(password, salt)
