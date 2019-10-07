@@ -33,6 +33,10 @@ const styles = theme => ({
   },
   titleGrow: {
     flexGrow: 1
+  },
+  userTxt: {
+    flexGrow: 0,
+    paddingRight: 10
   }
 })
 
@@ -41,7 +45,7 @@ const shouldDisplayDrawer = (location) => (
 )
 
 const Header = (props) => {
-  const { classes, isDrawerOpen, isAuth } = props
+  const { classes, isDrawerOpen, isAuth, user } = props
   const hideDrawerButton = shouldDisplayDrawer(props.location)
 
   return (
@@ -63,6 +67,9 @@ const Header = (props) => {
 
         <Typography variant="h6" color="inherit" className={classes.titleGrow} noWrap>
           CookBook
+        </Typography>
+        <Typography variant="subtitle1" color="inherit" className={classes.userTxt} noWrap>
+          {user !== undefined && `${user.username}`}
         </Typography>
         <Button color="inherit" className={classNames(!isAuth && classes.hide)} onClick={props.logout}>Logout</Button>
       </Toolbar>

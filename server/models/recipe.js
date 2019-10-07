@@ -21,6 +21,27 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: true,  
       }
     },
+    websiteName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,  
+      }
+    },
+    recipeUrl: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,  
+      }
+    },
+    recipeImgUrl: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,  
+      }
+    },
     preparationTime: {
       type: DataTypes.INTEGER,
       allowNull: true,
@@ -38,12 +59,15 @@ module.exports = (sequelize, DataTypes) => {
    // Instacne function
    Recipe.prototype.toJson = function() {
     return {
+      websiteName: this.websiteName,
+      recipeUrl: this.recipeUrl,
       title: this.title,
       recipeInfo: {
         preparationTimeInMs: this.preparationTime,
         cookTimeInMs: this.cookingTime,
         portions: this.portions,
-      }
+      },
+      recipeImgUrl: this.recipeImgUrl,
     }
   }
 

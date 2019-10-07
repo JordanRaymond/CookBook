@@ -3,7 +3,7 @@
 const validate = (value, rules) => {
     let isValid = true
     let errors = []
-    const isEmpty = value.length === 0
+    const isEmpty = value === undefined || value.length === 0 
 
     for (let rule in rules) {
         switch (rule) {
@@ -123,7 +123,7 @@ const maxLengthValidator = (value, maxLength) => {
  * @return       
  */
 const requiredValidator = value => {
-    return value.trim() !== ''
+    return value !== undefined && value.trim() !== ''
 }
 
 /**

@@ -13,9 +13,14 @@ const login = async (email, password) => {
     }
 
     return axios.post(`${serverUrl}/user/login`, reqBody, config).then(res => {
-        if(res.status === 200) return {
-            successful: true, 
-            message: res.data.message 
+        if(res.status === 200){ 
+            let user = {}
+            user.username = res.data.username
+            return {
+                successful: true, 
+                message: res.data.message, 
+                user: user 
+            }
         }
     }).catch(axiosErrorHandler)
 }
@@ -46,9 +51,33 @@ const isAuthenticate = async () => {
     }
 
     return axios.get(`${serverUrl}/user/isAuth`, config).then(res => {
+        if(res.status === 200) {
+            let user = {}
+            user.username = res.data.username
+            return {
+                successful: true, 
+                message: res.data.message,
+                user: user
+            }
+        }
+        else { 
+            if(res.status === 401)
+                window.alert('401') // for axios, 401 is an error... See axiosErrorHandler
+        }
+        
+
+    }).catch(axiosErrorHandler)
+}
+
+const getUserRecipes = async () => {
+    const config = {
+        withCredentials : true,
+    }
+
+    return axios.get(`${serverUrl}/user/recipes`, config).then(res => {
         if(res.status === 200) return {
             successful: true, 
-            message: res.data.message 
+            recipes: res.data.recipes 
         }
         else { 
             if(res.status === 401)
@@ -136,4 +165,4 @@ const getCookie = (cname) => {
     return null
 }
 
-export { login, register, isAuthenticate, logout } 
+export { login, register, isAuthenticate, logout, getUserRecipes } 

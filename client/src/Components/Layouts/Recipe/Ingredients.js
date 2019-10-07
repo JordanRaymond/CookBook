@@ -8,12 +8,15 @@ const styles = theme => ({
   },
 })
 
+const ingredientToString = (ingredient) => {
+  return `${ingredient.name}, ${ingredient.quantity}${ingredient.mesure}; ${ingredient.indication && ingredient.indication}`
+}
 
 const Ingredients = (props) => {
   const { classes } = props
   const { ingredients } = props
-
-  return (
+  // console.log(ingredients)
+  return (  
           <Fragment>
               <Typography variant="h3" mb={100}>
                 Ingredients
@@ -22,7 +25,7 @@ const Ingredients = (props) => {
               Array.isArray(ingredients) 
               ? ingredients.map((ingredient) => (
                 <Typography variant="body2" key={ingredient} >
-                {ingredient}
+                  {ingredient}
                 </Typography>
               ))
               : Object.entries(ingredients).map(([title, ingredients]) => (
@@ -32,8 +35,8 @@ const Ingredients = (props) => {
                     </Typography>
                     {
                       ingredients.map((ingredient) => (
-                        <Typography variant="body2" key={ingredient} gutterBottom>
-                        {ingredient}
+                        <Typography variant="body2" key={ingredient.name} gutterBottom>
+                          {ingredientToString(ingredient)}
                         </Typography>
                       ))
                     }

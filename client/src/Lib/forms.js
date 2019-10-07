@@ -2,6 +2,21 @@ import React from 'react'
 import validate from './validate.js'
 import { FormHelperText } from '@material-ui/core'
 
+const validateInputs = (formInputs) => {
+  let formInputsCpy = { ...formInputs }
+
+  Object.keys(formInputsCpy).forEach(itemName => {
+    let inputCpy = {...formInputsCpy[itemName] }
+
+    inputCpy.touched = true
+
+    inputCpy = { ...inputCpy, ...validate(inputCpy.value, inputCpy.validationRules)}
+    formInputsCpy[itemName] = inputCpy
+  })
+  
+  return formInputsCpy
+} 
+
 const validateInput = (event, formInputs) => {
     const inputName = event.target.name
 
@@ -58,5 +73,6 @@ export default {
   handleInputChange,
   checkFormIsValid, 
   checkControlHaveErrors,
-  showErrorsMsg, 
+  showErrorsMsg,
+  validateInputs 
 }

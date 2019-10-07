@@ -99,22 +99,23 @@ class Login extends Component {
     })
   }
 
-  handleSubmit = async  event => {
+  handleSubmit = async  (event, formInputs) => {
     event.preventDefault()
     
-    const formInputs = {
+    formInputs = formInputs === undefined ? {
       ...this.state.formControls
-    }
+    } : formInputs
 
     const formIsValid = forms.checkFormIsValid(formInputs)
 
     if(formIsValid) {
       try {
         this.setState({waitingForRes: true})
-        const {successful, message} = await login(formInputs.email.value, formInputs.password.value)
+        const {successful, message, recipes, user} = await login(formInputs.email.value, formInputs.password.value)
         
         if(successful) {
-          this.props.updateAuthState(true)
+          console.log(this.props)
+          this.props.updateAppStates({isAuth: true, recipes: recipes, user: user})
         } else {
             this.setState({waitingForRes: false})   
 
@@ -138,6 +139,28 @@ class Login extends Component {
             ),
           })
         }
+    } else {
+      console.log('checkAllInputs called')
+      this.checkAllInputs()
+    }
+  }
+
+  checkAllInputs() {
+    const updatedFormInputs = forms.validateInputs(this.state.formControls)
+    // console.log(updatedFormInputs)
+    this.setState({
+      formControls: updatedFormInputs,
+    })
+  }
+
+  handleKeyDown = (event) => {
+    // if Enter
+    if(event.keyCode === 13) {
+      const updatedFormInputs = forms.validateInput(event, this.state.formControls)
+
+      this.setState({formControls: updatedFormInputs})
+
+      this.handleSubmit(event, updatedFormInputs)
     }
   }
 
@@ -194,6 +217,7 @@ class Login extends Component {
                   value={formControls.password.value} 
                   onChange={this.handleInputChange}
                   onBlur={this.handleInputBlur}
+                  onKeyDown={this.handleKeyDown}
                   error={ passwordHaveErrors }
                   aria-describedby="password-error-text"
                 />

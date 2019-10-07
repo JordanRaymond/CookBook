@@ -2,7 +2,6 @@ import React, { Component, Fragment } from 'react'
 import {
   BrowserRouter as Router,
   Route,
-  Redirect,
   Switch,
 } from "react-router-dom"
 import { CssBaseline, withStyles, Button } from '@material-ui/core'
@@ -18,7 +17,7 @@ import { isAuthenticate, logout } from '../Lib/API/api'
 
 import 'typeface-roboto'
 
-import { recipes } from '../Recipes.js'
+// import { recipes } from '../Recipes.js'
 
 const styles = theme => ({
   flex: {
@@ -35,16 +34,17 @@ const styles = theme => ({
   
 class App extends Component {
   state = {
-    recipes, 
+    recipes: null, 
     isDrawerOpen: !this.isMobileDevice(),
     isDrawerLocked: !this.isMobileDevice(),
     isAuth: undefined,
+    user: undefined
   }
 
   async componentDidMount() {
     try {
-       const { successful, message } = await isAuthenticate()    
-       this.setState({ isAuth: successful })
+       const { successful, user } = await isAuthenticate()    
+       this.setState({ isAuth: successful, user: user })
     } catch(err) {
         this.props.enqueueSnackbar(err.message, {
           variant: 'error',
@@ -61,7 +61,7 @@ class App extends Component {
    logoutUser = async () => {
     try {
        const { successful } = await logout()    
-       this.setState({ isAuth: !successful })
+       this.setState({ isAuth: !successful, user: undefined })
     } catch(err) {
         this.props.enqueueSnackbar(err.message, {
           variant: 'error',
@@ -75,8 +75,16 @@ class App extends Component {
     }
   }
 
+  updateAppStates = (stateObjects) => {
+    this.setState({ ...stateObjects })
+  }
+
   updateAuthState = (newAuthValue) => {
     this.setState({ isAuth: newAuthValue })
+  }
+
+  setRecipes = (recipes) => {
+    this.setState({recipes: recipes})
   }
 
   isMobileDevice() {
@@ -110,9 +118,9 @@ class App extends Component {
 
   render() {
     const { classes } = this.props
-    const recipesData = this.getRecipesBySiteName()
+    const recipesData = this.state.recipes ? this.getRecipesBySiteName() : null
     const { isDrawerOpen, isDrawerLocked, isAuth } = this.state
-
+    console.log(this.state.user)
     let recipeDrawerProps = { 
       recipesData: recipesData, 
       isDrawerOpen: isDrawerOpen, 
@@ -131,6 +139,7 @@ class App extends Component {
             handleDrawerOpen={this.handleDrawer} 
             isAuth={isAuth} 
             logout={this.logoutUser}
+            user={this.state.user}
           />
           <div className={classes.flex}>
             <Switch>
@@ -144,8 +153,8 @@ class App extends Component {
                 ) : (
                   <Fragment>
                     <PrivateRoute exact path="/" component={RecipeDrawer} recipeDrawerProps={recipeDrawerProps} isAuth={isAuth} redirectTo="/login" />
-                    <Route exact path="/login" render={ props => <Auth isAuth={isAuth} updateAuthState={this.updateAuthState} /> } />
-                    <Route exact path="/register" render={ props => <Register isAuth={isAuth} updateAuthState={this.updateAuthState} /> } />
+                    <Route exact path="/login" render={ props => <Auth {...props} isAuth={isAuth} updateAppStates={this.updateAppStates} /> } />
+                    <Route exact path="/register" render={ props => <Register {...props} isAuth={isAuth} updateAuthState={this.updateAuthState} /> } />
                   </Fragment>
                 )
               }

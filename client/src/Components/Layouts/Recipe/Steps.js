@@ -32,8 +32,8 @@ const Steps = (props) => {
                       </Typography>
                     {
                       steps.map((step) => (
-                          <Typography variant="body2" key={step} gutterBottom >
-                          {step}
+                          <Typography variant="body2" key={step.description} gutterBottom >
+                          {step.description}
                           </Typography>
                       ))
                     }

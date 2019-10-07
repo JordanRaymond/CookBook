@@ -6,6 +6,44 @@ const asyncMiddleware = require('../../utils/asyncMiddleware')
 const asyncForEach = require('../../utils/asyncForEach') 
 const areUserInputsValid = require('../../utils/userValidation')
 
+router.get('/recipes', asyncMiddleware( async (req, res, next) => {
+  if(!req.isAuthenticated()) {
+    return res.status(401).json({
+      isAuth: false,
+      message: 'User not authenticated, can\'t get recipes.'
+    })
+  }
+  let recipes = await getUserRecipes(req.user)
+
+  return res.status(200).json({ 
+    message : `${req.user.username} recipes`,
+    recipes: recipes
+  })
+}))
+
+router.get('/isAuth', (req, res) => {
+  if(req.isAuthenticated()) {
+      res.status(200).json({
+        isAuth: true, 
+        message: 'User is authenticated.',
+        username: req.user.username
+    })
+  } else {
+      res.status(401).json({
+        isAuth: false,
+        message: 'User not authenticated'
+    })
+  }
+}) 
+
+router.get('/logout', (req, res) => {
+  req.logout()
+  res.status(200).json({
+    success: true,
+    message: 'Logout succeful'
+  })
+})
+
 router.post('/register', asyncMiddleware( async(req, res, next) => {
   const errMsg = `Validation of the Register form inputs failed.`
   const { email, username, password, passwordConf } = req.body
@@ -22,6 +60,34 @@ router.post('/register', asyncMiddleware( async(req, res, next) => {
     message : `${user.username}`,
   })
 }))
+
+router.post('/login', (req, res, next) => {
+  passport.authenticate('local', function(err, user, info) {
+    if (err) {
+      return next(err); // will generate a 500 error
+    }
+
+    // Generate a JSON response reflecting authentication status
+    if (! user) {
+      return res.status(401).json({ 
+        message : 'Invalide email or passwword' 
+      })
+    }
+ 
+    req.login(user, async loginErr => {
+      if (loginErr) {
+        return next(loginErr)
+      }
+      
+      // let recipes = await getUserRecipes(user)
+
+      return res.status(200).json({ 
+        message : 'Authentication succeeded',
+        username: user.username,
+      })
+    })
+  })(req, res, next)
+})
 
 async function isUserCredentialValid(email, username, password, passwordConf) {
   return areUserInputsValid(email, username, password, passwordConf)
@@ -45,35 +111,6 @@ async function createNewUser(email, username, password) {
   
   return await newUser.save()
 }
-
-router.post('/login', (req, res, next) => {
-  passport.authenticate('local', function(err, user, info) {
-    if (err) {
-      return next(err); // will generate a 500 error
-    }
-
-    // Generate a JSON response reflecting authentication status
-    if (! user) {
-      return res.status(401).json({ 
-        message : 'Invalide email or passwword' 
-      })
-    }
- 
-    req.login(user, async loginErr => {
-      if (loginErr) {
-        return next(loginErr)
-      }
-      
-      let recipes = await getUserRecipes(user)
-
-      return res.status(200).json({ 
-        message : 'Authentication succeeded',
-        username: user.username,
-        recipes: recipes
-      })
-    })
-  })(req, res, next)
-})
 
 async function getUserRecipes(user) {
   let recipes = await Recipes.findAll({
@@ -111,27 +148,5 @@ async function recipesToJson(recipes) {
 
   return formatedRecipes
 }
-
-router.get('/isAuth', (req, res) => {
-  if(req.isAuthenticated()) {
-      res.status(200).json({
-        isAuth: true, 
-        message: 'User is authenticated.'
-    })
-  } else {
-      res.status(401).json({
-        isAuth: false,
-        message: 'User not authenticated'
-    })
-  }
-}) 
-
-router.get('/logout', (req, res) => {
-  req.logout()
-  res.status(200).json({
-    success: true,
-    message: 'Logout succeful'
-  })
-})
 
 module.exports = router
