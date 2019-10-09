@@ -120,7 +120,7 @@ class App extends Component {
     const { classes } = this.props
     const recipesData = this.state.recipes ? this.getRecipesBySiteName() : null
     const { isDrawerOpen, isDrawerLocked, isAuth } = this.state
-    console.log(this.state.user)
+ 
     let recipeDrawerProps = { 
       recipesData: recipesData, 
       isDrawerOpen: isDrawerOpen, 

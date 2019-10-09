@@ -35,8 +35,7 @@ class RecipeDrawer extends Component {
 
   async componentDidMount() {
     try {
-       const { recipes } = await getUserRecipes()
-       console.log(`got recipes`)    
+       const { recipes } = await getUserRecipes()   
        this.setState({ recipes: recipes })
     } catch(err) {
         this.props.enqueueSnackbar(err.message, {
@@ -70,7 +69,6 @@ class RecipeDrawer extends Component {
   
   refineRecipes = (recipes) => {
     recipes = recipes.map(recipe => {
-      console.log(recipe)
       recipe.websiteName = recipe.websiteName ? recipe.websiteName : 'Originals'
       return recipe
     })
