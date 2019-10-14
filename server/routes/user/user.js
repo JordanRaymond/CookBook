@@ -5,6 +5,8 @@ const { Users: User, Recipes, StepsLists, IngredientsLists, Steps, RecipeIngredi
 const asyncMiddleware = require('../../utils/asyncMiddleware') 
 const asyncForEach = require('../../utils/asyncForEach') 
 const areUserInputsValid = require('../../utils/userValidation')
+const areRecipeInputsValid = require('../../utils/recipeValidation')
+
 
 router.get('/recipes', asyncMiddleware( async (req, res, next) => {
   if(!req.isAuthenticated()) {
@@ -88,6 +90,25 @@ router.post('/login', (req, res, next) => {
     })
   })(req, res, next)
 })
+
+router.post('/recipes', asyncMiddleware( async(req, res, next) => {
+  const errMsg = `Validation of the recipe form inputs failed.`
+  const recipeData = req.body
+  
+  console.log(recipeData)
+  // const isRecipeDataVaild = await isUserCredentialValid(email, username, password, passwordConf)
+  // if (!isUserDataValid) {
+  //   return res.status(400).json({ 
+  //     message : errMsg,
+  //   })
+  // }
+
+  // const user = await createNewUser(email, username, password)
+  // return res.status(200).json({ 
+  //   message : `${user.username}`,
+  // })
+  return res.status(200).json({recipeData: recipeData})
+}))
 
 async function isUserCredentialValid(email, username, password, passwordConf) {
   return areUserInputsValid(email, username, password, passwordConf)

@@ -13,7 +13,7 @@ require('dotenv').config()
 
 // Cors definition 
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://192.168.2.89:3000') // TODO: setup env variable
+  res.setHeader('Access-Control-Allow-Origin', `http://${process.env.IP_ADDRESS}:3000`) // Unifie bot server and client env
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, cookie, set-cookie')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE')
   res.setHeader('Access-Control-Allow-Credentials', true)
@@ -22,15 +22,12 @@ app.use((req, res, next) => {
 })
 
 sequelize.authenticate().then(() => {
-  // Users.findOne({where: { email: 'test@test.com'}}).then(user => {
-  //       console.log(user.password)
-  // })
   console.log('Connection has been established successfully.')
 }).catch(err => {
   console.error('Unable to connect to the database:', err)
 })
 
-// Passport Config, Db init
+// Passport Config
 require('./config/passport')
 
 // Express body parser
@@ -53,27 +50,6 @@ app.use(
 // Passport middleware
 app.use(passport.initialize())
 app.use(passport.session())
-
-// ======== DEBUG ============
-// app.use((req, res, next) => {
-//   console.log('Request Headers: ')
-//   console.log(JSON.stringify(req.headers, null, 4))
-//   if(req.cookies) {
-//     console.log('Request cookies: ')
-//     console.log(JSON.stringify(req.cookies, null, 4))
-//   }
-
-//   console.log('Res Headers: ')
-//   console.log(JSON.stringify(res.getHeaders(), null, 4))
-//   console.log(`res.get('set-cookie'): ${res.get('set-cookie')}`)
-//   console.log(`res.get('cookie'): ${res.get('cookie')}`)
-
-//   // res.cookie('test', 1234, {path: '/', isSecure: true})
-//   // console.log('Res cookies: ')
-//   // console.log(res.cookie())
-
-//   next()
-// })
 
 // Routes
 app.use(require('./routes'))

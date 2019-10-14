@@ -140,21 +140,20 @@ class Login extends Component {
           })
         }
     } else {
-      console.log('checkAllInputs called')
       this.checkAllInputs()
     }
   }
 
   checkAllInputs() {
     const updatedFormInputs = forms.validateInputs(this.state.formControls)
-    // console.log(updatedFormInputs)
+    
     this.setState({
       formControls: updatedFormInputs,
     })
   }
 
   handleKeyDown = (event) => {
-    // if Enter
+    // 13 is the enter key
     if(event.keyCode === 13) {
       const updatedFormInputs = forms.validateInput(event, this.state.formControls)
 
@@ -164,14 +163,34 @@ class Login extends Component {
     }
   }
 
+  formControl = (labelTxt, inputName, doHaveErrors, autoComplete, otherAttributes) => (
+    <FormControl margin="normal" error={ doHaveErrors } required fullWidth>
+      <InputLabel htmlFor={`${inputName}`}>{labelTxt}</InputLabel>
+        <Input 
+          id={`${inputName}`} 
+          name={`${inputName}`} 
+          autoComplete={autoComplete || `${inputName}`} 
+          autoFocus={false} // TODO: if autofocus true and data set by browser and user click outside window, email value would be empty and send error 
+          value={this.state.formControls[inputName].value} 
+          onChange={this.handleInputChange}
+          onBlur={this.handleInputBlur} 
+          error={ doHaveErrors }
+          aria-describedby={`${inputName}-error-text`}
+          {...otherAttributes}   
+        />
+        { 
+          forms.showErrorsMsg(this.state.formControls[inputName].errors)
+        }
+    </FormControl>
+  )
+
   registerLink = props => <RouterLink to="/register" {...props} />
   
   render() {
     const { classes } = this.props
-    const formControls = this.state.formControls
 
-    const emailHaveErrors = forms.checkControlHaveErrors(formControls.email) 
-    const passwordHaveErrors = forms.checkControlHaveErrors(formControls.password) 
+    const emailHaveErrors = forms.checkControlHaveErrors(this.state.formControls.email) 
+    const passwordHaveErrors = forms.checkControlHaveErrors(this.state.formControls.password) 
 
     return (
       <main className={classes.main}>
@@ -189,42 +208,14 @@ class Login extends Component {
             <Link variant="subtitle2" component={this.registerLink}>
               Don't have an account? Register.
             </Link>
-            <form className={classes.form}> 
-              <FormControl margin="normal" error={ emailHaveErrors } required fullWidth>
-                <InputLabel htmlFor="email" >Email Address</InputLabel>
-                <Input 
-                  id="email" 
-                  name="email" 
-                  autoComplete="email" 
-                  autoFocus={false} // TODO: if autofocus true and data set by browser and user click outside window, email value would be empty and send error 
-                  value={formControls.email.value} 
-                  onChange={this.handleInputChange}
-                  onBlur={this.handleInputBlur} 
-                  error={ emailHaveErrors }
-                  aria-describedby="email-error-text"
-                />
-                { 
-                  forms.showErrorsMsg(formControls.email.errors)
-                }
-              </FormControl>
-              <FormControl margin="normal" error={ passwordHaveErrors } required fullWidth>
-                <InputLabel htmlFor="password">Password</InputLabel>
-                <Input
-                  id="password" 
-                  name="password" 
-                  autoComplete="current-password" 
-                  type="password" 
-                  value={formControls.password.value} 
-                  onChange={this.handleInputChange}
-                  onBlur={this.handleInputBlur}
-                  onKeyDown={this.handleKeyDown}
-                  error={ passwordHaveErrors }
-                  aria-describedby="password-error-text"
-                />
-                {
-                  forms.showErrorsMsg(formControls.password.errors)
-                }
-              </FormControl>
+
+            <form className={classes.form}>
+              {this.formControl('Email Address', 'email', emailHaveErrors)}
+              {
+                this.formControl('Password', 'password', passwordHaveErrors, 'current-password', {
+                  type: 'password', onKeyDown: this.handleKeyDown}
+                )
+              }
               <FormControlLabel
                 control={<Checkbox value="remember" color="primary" />}
                 label="Remember me"
@@ -239,7 +230,7 @@ class Login extends Component {
               >
                 Sign in
               </Button>
-          </form>
+            </form>
         </Paper>
       </main>
     )

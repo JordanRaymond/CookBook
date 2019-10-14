@@ -6,14 +6,6 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       unique: true
     },
-    // userId: {
-    //   type: DataTypes.INTEGER,
-    //   references: {
-    //       model: 'Users',
-    //       key: 'userId'
-    //   },
-    //   allowNull: false,
-    // }, 
     title: {
       type: DataTypes.STRING,
       allowNull: false,

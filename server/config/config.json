@@ -3,7 +3,7 @@
 
   "development": {
     "username": "postgres",
-    "password": 1234,
+    "password": "JijiTh1011",
     "database": "cookBook",
     "host": "127.0.0.1",
     "port": 5432,
