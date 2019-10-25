@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) => {
         }
       },
     })
-
+    
+    Steps.descriptionMaxLength = 500
     
      // Instacne function
      Steps.prototype.toJson = function() {

@@ -93,7 +93,7 @@ const logout = async () => {
         withCredentials : true,
     }
 
-    return axios.get(`${serverUrl}/user/logout`, config).then(res => {
+    return axios.post(`${serverUrl}/user/logout`, config).then(res => {
         if(res.status === 200) return {
             successful: true, 
             message: res.data.message 

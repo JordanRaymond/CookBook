@@ -4,8 +4,8 @@ const passport = require('passport')
 const { Users: User, Recipes, StepsLists, IngredientsLists, Steps, RecipeIngredients } = require('../../models')
 const asyncMiddleware = require('../../utils/asyncMiddleware') 
 const asyncForEach = require('../../utils/asyncForEach') 
-const areUserInputsValid = require('../../utils/userValidation')
-const areRecipeInputsValid = require('../../utils/recipeValidation')
+const areUserInputsValid = require('../../utils/validation/userValidation')
+const areRecipeInputsValid = require('../../utils/validation/recipeValidation')
 
 
 router.get('/recipes', asyncMiddleware( async (req, res, next) => {
@@ -38,7 +38,7 @@ router.get('/isAuth', (req, res) => {
   }
 }) 
 
-router.get('/logout', (req, res) => {
+router.post('/logout', (req, res) => {
   req.logout()
   res.status(200).json({
     success: true,
@@ -95,7 +95,8 @@ router.post('/recipes', asyncMiddleware( async(req, res, next) => {
   const errMsg = `Validation of the recipe form inputs failed.`
   const recipeData = req.body
   
-  console.log(recipeData)
+  console.log(areRecipeInputsValid(recipeData))
+ 
   // const isRecipeDataVaild = await isUserCredentialValid(email, username, password, passwordConf)
   // if (!isUserDataValid) {
   //   return res.status(400).json({ 
@@ -109,6 +110,10 @@ router.post('/recipes', asyncMiddleware( async(req, res, next) => {
   // })
   return res.status(200).json({recipeData: recipeData})
 }))
+
+function trimRecipeData(recipeData) {
+    
+}
 
 async function isUserCredentialValid(email, username, password, passwordConf) {
   return areUserInputsValid(email, username, password, passwordConf)
