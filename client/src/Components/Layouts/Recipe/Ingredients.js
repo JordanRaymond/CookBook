@@ -12,11 +12,12 @@ const styles = theme => ({
 })
 
 const ingredientToString = (ingredient) => {
+  console.log(ingredient)
   let mesure = ingredient.mesure == null || ingredient.mesure === 'Unit' ? '' : ingredient.mesure
-  let qantity = ingredient.quantity == null ? '' : `, ${ingredient.quantity}`
+  let quantity = ingredient.quantity == null ? '' : `, ${ingredient.quantity}`
   let indication = ingredient.indication == null ? '' : `: ${ingredient.indication}`
 
-  return `${ingredient.name}${qantity}${mesure}${indication }`
+  return `${ingredient.name}${quantity}${mesure}${indication }`
 }
 
 const Ingredients = (props) => {
@@ -25,14 +26,11 @@ const Ingredients = (props) => {
   // console.log(ingredients)
   return (  
           <Fragment>
-              <Typography variant="h3" mb={100}>
-                Ingredients
-              </Typography>
             {
               Array.isArray(ingredients) 
               ? ingredients.map((ingredient) => (
                 <Typography variant="body2" key={ingredient} >
-                  {ingredient}
+                  {ingredientToString(ingredient)}
                 </Typography>
               ))
               : Object.entries(ingredients).map(([title, ingredients]) => (

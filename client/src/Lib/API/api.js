@@ -38,9 +38,12 @@ const register = async (email, username, password, passwordConf) => {
     }
 
     return axios.post(`${serverUrl}/user/register`, reqBody, config).then(res => {
+        let user = {}
+        user.username = res.data.username
+
         if(res.status === 200) return {
             successful: true, 
-            message: res.data.message 
+            user: user 
         }
     }).catch(axiosErrorHandler)
 }
@@ -88,12 +91,30 @@ const getUserRecipes = async () => {
     }).catch(axiosErrorHandler)
 }
 
+// const logout = async () => {
+//     const config = {
+//         withCredentials : true,
+//     }
+
+//     return axios.post(`${serverUrl}/user/logout`, config).then(res => {
+//         if(res.status === 200) return {
+//             successful: true, 
+//             message: res.data.message 
+//         }
+//         else { 
+//             if(res.status === 401)
+//                 window.alert('401')
+//         }
+        
+//     }).catch(axiosErrorHandler)
+// }
+
 const logout = async () => {
     const config = {
         withCredentials : true,
     }
 
-    return axios.post(`${serverUrl}/user/logout`, config).then(res => {
+    return axios.get(`${serverUrl}/user/logout`, config).then(res => {
         if(res.status === 200) return {
             successful: true, 
             message: res.data.message 

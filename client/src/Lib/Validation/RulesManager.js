@@ -13,9 +13,7 @@ class RulesManager {
 
     init() {
         for (let strategy in strategies) {
-            
             const key = strategies[strategy].ruleName
-
             this.register(key, strategies[strategy])
         }
     }
@@ -28,10 +26,7 @@ class RulesManager {
             return result
         } catch(err) {
             console.error(`The ${key} rule does not exist or is not included.`)
-            
-        }        
-
-
+        }      
     }
 }
 

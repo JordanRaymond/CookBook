@@ -1,7 +1,7 @@
 import React, { Fragment, Component } from 'react'
 import { Typography, Paper } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
-import { Ingredients, Steps, Informations, ImgDialog } from '../Layouts'
+import { Ingredients, Steps, RecipeHeader } from '../Layouts'
 import classNames from 'classnames'
 import './Recipe.css'
 
@@ -29,15 +29,7 @@ const styles = theme => ({
     zIndex: 1,
   },
   toolbar: theme.mixins.toolbar,
-});
-
-const renderStyle = (recipeImgUrl) => (
-  recipeImgUrl ? ({
-    style: {
-      backgroundImage: `url(${recipeImgUrl})`,
-    }
-  }) : ({})
-)
+})
 
 class Recipe extends Component {
   state = {
@@ -52,41 +44,26 @@ class Recipe extends Component {
     const { classes, isDrawerOpen } = this.props
     const { title, ingredients, websiteName, recipeInfo, steps, recipeImgUrl } = this.props.recipe
     let haveRecipe = this.props.recipe.title !== undefined
-
+    console.log('called recipe')
     return (
       <main className={classNames(classes.content, {
         [classes.contentShift]: isDrawerOpen,
       })}>
         <div className={classes.toolbar} />
         <Fragment> 
-
           <Paper className={classes.txtContent}>
             { !haveRecipe ?
-              <Typography variant="h3" className={'typo'}>
+              <Typography variant="h4" className={'typo'}>
                 Select a recipe
               </Typography>
             :
               <Fragment> 
-                {/* TODO: Extract to Recipe Header or something like that */}
-                <div className={'titleBackground'} {...renderStyle(recipeImgUrl)}>
-                  <div className={'titleContainer'}>
-                    <img src={recipeImgUrl} className='recipeImg' alt='Recipe' onClick={this.handleImgDialog}/>
-    
-                    <div className={'rightImgContainer'}>
-                      <Typography variant="h3" className={'typo'} >
-                        {title}
-                      </Typography>
-                      <hr className={'typo'}/>
-                      
-                      <Informations recipeInfo={recipeInfo} className={'typo'} />
-                    </div>
-                  </div>
-                </div>             
-                <Typography variant="caption">
-                  {`from ${websiteName}`}        
-                </Typography>
+                <RecipeHeader title={title} websiteName={websiteName} recipeInfo={recipeInfo} recipeImgUrl={recipeImgUrl}/>
                 
                 <div style={{ paddingBottom: 50 }}>
+                  <Typography variant="h3" mb={100}>
+                    Ingredients
+                  </Typography>
                   <Ingredients ingredients={ingredients} />
                 </div>
 
@@ -94,11 +71,6 @@ class Recipe extends Component {
               </Fragment>
             }
           </Paper>
-          <ImgDialog 
-            recipeImgUrl={recipeImgUrl} 
-            isImgDialogOpen={this.state.isImgDialogOpen} 
-            handleImgDialog={this.handleImgDialog}
-          />
         </Fragment>
 
       </main>

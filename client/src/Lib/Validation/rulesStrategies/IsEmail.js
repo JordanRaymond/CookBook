@@ -14,7 +14,8 @@ class IsEmail {
         const rule = IsEmail.ruleName
         const err = this.getErrorMessage()
 
-        return isValid ? { isValid } : { isValid, rule, err }
+        const error = { infringedRule: rule, message: err }
+        return isValid ? { isValid } : { isValid, error }
     }
 }
 

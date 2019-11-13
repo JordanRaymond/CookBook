@@ -9,12 +9,13 @@ class IsPassword {
         const isEmpty = value == undefined || value.length === 0 
         if(isEmpty) return { isValid: true }
         
-        const re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])\S[0-9a-zA-Z]*$/        
+        const re = /^(?=.*\d)(?=.*[a-z])|(?=.*[A-Z])\S[0-9a-zA-Z]*$/        
         const isValid = re.test(String(value))
         const rule = IsPassword.ruleName
         const err = this.getErrorMessage()
 
-        return isValid ? { isValid } : { isValid, rule, err }
+        const error = { infringedRule: rule, message: err }
+        return isValid ? { isValid } : { isValid, error }
     }
 }
 

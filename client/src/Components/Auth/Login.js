@@ -1,15 +1,18 @@
 import React, { Component } from 'react'
 import {
     Avatar, Button, FormControl, FormControlLabel, Checkbox,
-    Input, InputLabel, Paper, Typography, withStyles, Link 
+    Input, InputLabel, Paper, Typography, withStyles, Link, FormHelperText 
 } from '@material-ui/core'
 import { Link as RouterLink } from 'react-router-dom'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined'
 import ReactLoading from 'react-loading'
 import { withSnackbar } from 'notistack'
 
-import forms from '../../Lib/forms'
 import { login } from '../../Lib/API/api'
+
+import FormInputs from '../../Lib/Validation/FormInputs'
+import FormInput from '../../Lib/Validation/Input'
+import { IsRequired, MinLength, IsEmail } from '../../Lib/Validation/rulesStrategies'
 
 const styles = theme => ({
     main: {
@@ -52,72 +55,51 @@ class Login extends Component {
     this.state = {
       isAuth: props.isAuth,
       waitingForRes: false,
-      formIsValid: false,
-
-      formControls: {
-        email: {
-          value: '',
-          placeholder: '',
-          isValid: false,
-          errors: [],
-          validationRules: {
-            isRequired: true,
-            isEmail: true
-          },
-          touched: false
-        },
-        password: {
-          value: '',
-          placeholder: '',
-          isValid: false,
-          errors: [],
-          validationRules: {
-            isRequired: true,
-            minLength: 6
-          },
-          touched: false
-        },
-      }
+      
+      formInputs: new FormInputs({
+        email: new FormInput([new IsRequired(), new IsEmail()]),
+        password: new FormInput([new IsRequired(), new MinLength(6)])
+      })
     }
   }
 
   handleInputBlur = event => {
-    const updatedFormInputs = forms.validateInput(event, this.state.formControls)
-    const formIsValid = forms.checkFormIsValid(updatedFormInputs)
+    let formCopy = Object.assign(Object.create(this.state.formInputs), this.state.formInputs)
+    const inputName = event.target.name
+
+    formCopy.input(inputName).validate()
+    formCopy.input(inputName).isTouched = true
+    formCopy.validate()
 
     this.setState({
-      formControls: updatedFormInputs,
-      formIsValid
+      formInputs: formCopy
     })
   }
 
   handleInputChange = event => {
-    const updatedFormInputs = forms.handleInputChange(event, this.state.formControls)
+    let formCopy = Object.assign(Object.create(this.state.formInputs), this.state.formInputs)
+    formCopy.handleInputChange(event) // TODO: rename to updateInput
 
     this.setState({
-      formControls: updatedFormInputs,
+      formInputs: formCopy,
     })
   }
 
   handleSubmit = async  (event, formInputs) => {
     event.preventDefault()
     
-    formInputs = formInputs === undefined ? {
-      ...this.state.formControls
-    } : formInputs
-
-    const formIsValid = forms.checkFormIsValid(formInputs)
+    let formCopy = Object.assign(Object.create(this.state.formInputs), this.state.formInputs)
+    const formIsValid = formCopy.validate()
 
     if(formIsValid) {
       try {
         this.setState({waitingForRes: true})
-        const {successful, message, recipes, user} = await login(formInputs.email.value, formInputs.password.value)
+        const {successful, message, user} = await login(formCopy.input("email").value, formCopy.input("password").value)
         
         if(successful) {
-          console.log(this.props)
-          this.props.updateAppStates({isAuth: true, recipes: recipes, user: user})
+          this.props.updateAppStates({isAuth: true, user: user})
         } else {
-            this.setState({waitingForRes: false})   
+            this.setState({waitingForRes: false, formInputs: formCopy})   
 
             this.props.enqueueSnackbar(message, {
               variant: 'error',
@@ -130,7 +112,7 @@ class Login extends Component {
         } catch(err) {
           console.log(`Login.js: login err: ${err}`)
         
-          this.setState({waitingForRes: false})            
+          this.setState({waitingForRes: false, formInputs: formCopy})            
           this.props.enqueueSnackbar(err.message, {
             variant: 'error',
             persist: true,
@@ -140,28 +122,32 @@ class Login extends Component {
           })
         }
     } else {
-      this.checkAllInputs()
+      formCopy.validateAllInputs()
+      this.setState({formInputs: formCopy})            
     }
-  }
-
-  checkAllInputs() {
-    const updatedFormInputs = forms.validateInputs(this.state.formControls)
-    
-    this.setState({
-      formControls: updatedFormInputs,
-    })
   }
 
   handleKeyDown = (event) => {
     // 13 is the enter key
     if(event.keyCode === 13) {
-      const updatedFormInputs = forms.validateInput(event, this.state.formControls)
+      let formCopy = Object.assign(Object.create(this.state.formInputs), this.state.formInputs)
+      const inputName = event.target.name
 
-      this.setState({formControls: updatedFormInputs})
+      formCopy.input(inputName).validate()
 
-      this.handleSubmit(event, updatedFormInputs)
+      this.setState({formInput: formCopy})
+
+      this.handleSubmit(event, formCopy)
     }
   }
+
+  showErrorsMsg = errors => (
+    errors.map(error => (    
+      (errors.length === 1 || error.infringedRule !== 'isRequired') 
+      && 
+      <FormHelperText id="password-error-text" key={ error.message }>{error.message}</FormHelperText> 
+    ))
+  )
 
   formControl = (labelTxt, inputName, doHaveErrors, autoComplete, otherAttributes) => (
     <FormControl margin="normal" error={ doHaveErrors } required fullWidth>
@@ -171,7 +157,7 @@ class Login extends Component {
           name={`${inputName}`} 
           autoComplete={autoComplete || `${inputName}`} 
           autoFocus={false} // TODO: if autofocus true and data set by browser and user click outside window, email value would be empty and send error 
-          value={this.state.formControls[inputName].value} 
+          value={this.state.formInputs.input(inputName).value} 
           onChange={this.handleInputChange}
           onBlur={this.handleInputBlur} 
           error={ doHaveErrors }
@@ -179,7 +165,7 @@ class Login extends Component {
           {...otherAttributes}   
         />
         { 
-          forms.showErrorsMsg(this.state.formControls[inputName].errors)
+          this.showErrorsMsg(this.state.formInputs.input(inputName).errors)
         }
     </FormControl>
   )
@@ -189,8 +175,8 @@ class Login extends Component {
   render() {
     const { classes } = this.props
 
-    const emailHaveErrors = forms.checkControlHaveErrors(this.state.formControls.email) 
-    const passwordHaveErrors = forms.checkControlHaveErrors(this.state.formControls.password) 
+    const emailHaveErrors = this.state.formInputs.doesInputHaveErrors('email')
+    const passwordHaveErrors = this.state.formInputs.doesInputHaveErrors('password')
 
     return (
       <main className={classes.main}>
@@ -226,7 +212,7 @@ class Login extends Component {
                 variant="contained"
                 color="primary"
                 className={classes.submit}
-                disabled={!this.state.formIsValid}
+                disabled={!this.state.formInputs.formIsValid}
               >
                 Sign in
               </Button>

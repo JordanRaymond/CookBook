@@ -1,15 +1,22 @@
 import React, { Component } from 'react'
 import {
     Avatar, Button, FormControl, FormControlLabel, Checkbox,
-    Input, InputLabel, Paper, Typography, withStyles, Link
+    Input, InputLabel, Paper, Typography, withStyles, Link,
+    FormHelperText
 } from '@material-ui/core'
 import { Redirect, Link as RouterLink } from 'react-router-dom'
 import { LockOutlined as LockOutlinedIcon } from '@material-ui/icons'
 import { withSnackbar } from 'notistack'
 import ReactLoading from 'react-loading'
 
-import forms from '../../Lib/forms'
 import { register } from '../../Lib/API/api'
+
+import forms from '../../Lib/Validation/forms'
+
+import FormInputs from '../../Lib/Validation/FormInputs'
+import FormInput from '../../Lib/Validation/Input'
+import { IsRequired, MinLength, IsEmail, 
+  IsAlphanumeric, IsPassword, MustMatch } from '../../Lib/Validation/rulesStrategies'
 
 const styles = theme => ({
     main: {
@@ -53,99 +60,60 @@ class Register extends Component {
         this.state = {
           isAuth: props.isAuth,
           waitingForRes: false,
-          formIsValid: false,
           
-          formControls: {
-            registrationEmail: {
-              value: '',
-              placeholder: '',
-              isValid: false,
-              errors: [],
-              validationRules: {
-                isRequired: true,
-                isEmail: true
-              },
-              touched: false
-            },
-            username: {
-                value: '',
-                placeholder: '',
-                isValid: false,
-                errors: [],
-                validationRules: {
-                  isRequired: true,
-                  isAlphanumeric: true,   
-                  minLength: 6
-                },
-                touched: false
-            },
-            password: {
-              value: '',
-              placeholder: 'Password',
-              isValid: false,
-              errors: [],
-              validationRules: {
-                isRequired: true,
-                isPassword: true,   
-                minLength: 6
-              },
-              touched: false
-            },
-            passwordConfirmation: {
-                value: '',
-                placeholder: '',
-                isValid: false,
-                errors: [],
-                validationRules: {
-                  isRequired: true,
-                  mustMatch: undefined
-                },
-                touched: false
-            }
-          }
+          formInputs: new FormInputs({
+            registrationEmail: new FormInput([new IsRequired(), new IsEmail()]),
+            username: new FormInput([new IsRequired(), new IsAlphanumeric(), new MinLength(6)]),
+            password: new FormInput([new IsRequired(), new IsPassword(), new MinLength(6)]),
+            passwordConfirmation: new FormInput([new IsRequired(), new MustMatch()]),
+          }),
         }
     } 
 
-    handleInputBlur = event => {
-      const updatedFormInputs = forms.validateInput(event, this.state.formControls)
-      const formIsValid = forms.checkFormIsValid(updatedFormInputs)
+    handleInputBlur = (event, args) => {
+      let formCopy = Object.assign(Object.create(this.state.formInputs), this.state.formInputs)
+      const inputName = event.target.name
+  
+      formCopy.input(inputName).validate(args)
+      formCopy.input(inputName).isTouched = true
+      formCopy.validate()
   
       this.setState({
-        formControls: updatedFormInputs,
-        formIsValid
+        formInputs: formCopy
       })
     }
   
     handleInputChange = event => {
-      const updatedFormInputs = forms.handleInputChange(event, this.state.formControls)
+      let formCopy = Object.assign(Object.create(this.state.formInputs), this.state.formInputs)
+      formCopy.handleInputChange(event) // TODO: rename to updateInput
   
       this.setState({
-        formControls: updatedFormInputs,
+        formInputs: formCopy,
       })
     }
 
     handleSubmit = async  event => {
       event.preventDefault()
       
-      const formInputs = {
-        ...this.state.formControls
-      }
-      const formIsValid = forms.checkFormIsValid(formInputs)
+      let formCopy = Object.assign(Object.create(this.state.formInputs), this.state.formInputs)
+      const formIsValid = formCopy.validate()
 
       if(formIsValid) {
         try {
           this.setState({waitingForRes: true})
-          const {successful, message} = await register(
-            formInputs.registrationEmail.value,
-            formInputs.username.value, 
-            formInputs.password.value,
-            formInputs.passwordConfirmation.value
+          const {successful, message, user} = await register(
+            formCopy.input('registrationEmail').value,
+            formCopy.input('username').value, 
+            formCopy.input('password').value,
+            formCopy.input('passwordConfirmation').value
           )
           
           if(successful) {
-            this.props.updateAuthState(true)
+            // this.props.updateAuthState(true)
+            this.props.updateAppStates({isAuth: true, user: user})
           } else {
-            this.setState({waitingForRes: false})   
+            this.setState({waitingForRes: false, formInputs: formCopy})   
+
             this.props.enqueueSnackbar(message, {
               variant: 'error',
               persist: true,
@@ -155,9 +123,9 @@ class Register extends Component {
             })
           }         
         } catch(err) {
-          console.log(`Auth.js: login err: ${err}`)
+          console.log(`Register.js: register err: ${err}`)
           
-          this.setState({waitingForRes: false})            
+          this.setState({waitingForRes: false, formInputs: formCopy})            
           this.props.enqueueSnackbar(err.message, {
             variant: 'error',
             persist: true,
@@ -166,30 +134,52 @@ class Register extends Component {
             ),
           })
         }
+      }else {
+        formCopy.validateAllInputs()
+        this.setState({formInputs: formCopy})            
+      }
+    }
+
+    handleKeyDown = (event) => {
+      // 13 is the enter key
+      if(event.keyCode === 13) {
+        let formCopy = Object.assign(Object.create(this.state.formInputs), this.state.formInputs)
+        const inputName = event.target.name
+  
+        formCopy.input(inputName).validate()
+  
+        this.setState({formInput: formCopy})
+  
+        this.handleSubmit(event, formCopy)
       }
     }
     
-    setMustMatchRule = () => {
-        const controls = {
-            ...this.state.formControls
-        }
+    showErrorsMsg = errors => (
+      errors.map(error => (    
+        (errors.length === 1 || error.infringedRule !== 'isRequired') 
+        && 
+        <FormHelperText id="password-error-text" key={ error.message }>{error.message}</FormHelperText> 
+      ))
+    )
+
+    // setMustMatchRule = () => {
+    //     const controls = {
+    //         ...this.state.formControls
+    //     }
         
-        controls.passwordConfirmation.validationRules.mustMatch = controls.password
-        this.setState({formControls: controls}) 
-    }
+    //     controls.passwordConfirmation.validationRules.mustMatch = controls.password
+    //     this.setState({formControls: controls}) 
+    // }
 
     loginLink = props => <RouterLink to="/login" {...props} />
-
 
     render() {
         const { classes, isAuth } = this.props
         
-        const emailHaveErrors = forms.checkControlHaveErrors(this.state.formControls.registrationEmail)
-        const usernameHaveErrors = forms.checkControlHaveErrors(this.state.formControls.username)
-        const passwordHaveErrors = forms.checkControlHaveErrors(this.state.formControls.password)
-        const passwordConfHaveErrors = forms.checkControlHaveErrors(this.state.formControls.passwordConfirmation)
-        
-        // console.log(`Register isAuth: ${isAuth} ${window.location}`)
+        const emailHaveErrors = this.state.formInputs.doesInputHaveErrors('registrationEmail')
+        const usernameHaveErrors = this.state.formInputs.doesInputHaveErrors('username')
+        const passwordHaveErrors = this.state.formInputs.doesInputHaveErrors('password')
+        const passwordConfHaveErrors = this.state.formInputs.doesInputHaveErrors('passwordConfirmation')
         
         return (
             isAuth === true ? <Redirect to="/" exact /> :              
@@ -215,14 +205,14 @@ class Register extends Component {
                         id="registrationEmail" 
                         name="registrationEmail" 
                         autoFocus={false} // TODO: if autofocus true and data set by browser and user click outside window, email value would be empty and send error 
-                        value={this.state.formControls.registrationEmail.value} 
+                        value={this.state.formInputs.input('registrationEmail').value} 
                         onChange={this.handleInputChange}
                         onBlur={this.handleInputBlur} 
                         error={ emailHaveErrors }
                         aria-describedby="registration-email-error-text"
                         />
                         { 
-                        forms.showErrorsMsg(this.state.formControls.registrationEmail.errors)
+                        this.showErrorsMsg(this.state.formInputs.input('registrationEmail').errors)
                         }
                     </FormControl>
                     <FormControl margin="normal" error={ usernameHaveErrors } required fullWidth>
@@ -231,14 +221,14 @@ class Register extends Component {
                         id="username" 
                         name="username" 
                         autoFocus={false}  
-                        value={this.state.formControls.username.value} 
+                        value={this.state.formInputs.input('username').value} 
                         onChange={this.handleInputChange}
                         onBlur={this.handleInputBlur} 
                         error={ usernameHaveErrors }
                         aria-describedby="username-error-text"
                         />
                         { 
-                        forms.showErrorsMsg(this.state.formControls.username.errors)
+                        forms.showErrorsMsg(this.state.formInputs.input('username').errors)
                         }
                     </FormControl>
                     <FormControl margin="normal" error={ passwordHaveErrors } required fullWidth>
@@ -248,14 +238,14 @@ class Register extends Component {
                         name="password" 
                         autoComplete="new-password"
                         type="password" 
-                        value={this.state.formControls.password.value} 
+                        value={this.state.formInputs.input('password').value} 
                         onChange={this.handleInputChange}
                         onBlur={this.handleInputBlur}
                         error={ passwordHaveErrors }
                         aria-describedby="password-error-text"
                         />
                         {
-                        forms.showErrorsMsg(this.state.formControls.password.errors)
+                        forms.showErrorsMsg(this.state.formInputs.input('password').errors)
                         }
                     </FormControl>
                     <FormControl margin="normal" error={ passwordConfHaveErrors } required fullWidth>
@@ -264,14 +254,15 @@ class Register extends Component {
                         id="passwordConfirmation" 
                         name="passwordConfirmation" 
                         type="password" 
-                        value={this.state.formControls.passwordConfirmation.value} 
+                        value={this.state.formInputs.input('passwordConfirmation').value} 
                         onChange={this.handleInputChange}
-                        onBlur={(event) => {this.setMustMatchRule(); this.handleInputBlur(event)}}
+                        onBlur={(event) => {this.handleInputBlur(event, {value: this.state.formInputs.input('password').value, inputName: 'password'})}}
                         error={ passwordConfHaveErrors }
                         aria-describedby="passwordConfirmation-error-text"
+                        onKeyDown={this.handleKeyDown}
                         />
                         {
-                        forms.showErrorsMsg(this.state.formControls.passwordConfirmation.errors)
+                        forms.showErrorsMsg(this.state.formInputs.input('passwordConfirmation').errors)
                         }
                     </FormControl>
                     <FormControlLabel
@@ -284,7 +275,7 @@ class Register extends Component {
                         variant="contained"
                         color="primary"
                         className={classes.submit}
-                        disabled={!this.state.formIsValid}
+                        disabled={!this.state.formInputs.formIsValid}
                     >
                         Register
                     </Button>

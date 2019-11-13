@@ -15,21 +15,21 @@ module.exports = (sequelize, DataTypes) => {
     },
     websiteName: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       validate: {
         notEmpty: true,  
       }
     },
     recipeUrl: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       validate: {
         notEmpty: true,  
       }
     },
     recipeImgUrl: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
       validate: {
         notEmpty: true,  
       }
@@ -48,7 +48,7 @@ module.exports = (sequelize, DataTypes) => {
     },
   })
 
-   // Instacne function
+   // Instance function
    Recipe.prototype.toJson = function() {
     return {
       websiteName: this.websiteName,

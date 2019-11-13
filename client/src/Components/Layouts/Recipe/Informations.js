@@ -18,18 +18,29 @@ const Informations = (props) => {
   const { classes } = props
   const { recipeInfo } = props
 
+  // prettyMs(Number(recipeInfo.cookTimeInMs))
+  const preparationTime = recipeInfo.preparationTimeInMs
+  const cookingTime = recipeInfo.preparationTimeInMs
+  const portions = recipeInfo.portions
+
   return (
     <Fragment>
       <div className={classes.content}>
-      <Typography variant="h6" className={classes.text}>
-        {`Preparation Time: ${prettyMs(recipeInfo.preparationTimeInMs)}`}
-      </Typography>
+        {recipeInfo.preparationTimeInMs &&     
         <Typography variant="h6" className={classes.text}>
-        {`Cook time: ${prettyMs(recipeInfo.cookTimeInMs)}`}
-      </Typography>
-      <Typography variant="h6" className={classes.text}>
-        Yield Portions: {recipeInfo.portions}
-      </Typography>
+          {`Preparation Time: ${preparationTime}`}
+        </Typography>
+        }
+        {recipeInfo.cookTimeInMs &&
+        <Typography variant="h6" className={classes.text}>
+        {`Cook time: ${cookingTime}`}
+        </Typography>
+        }
+        {recipeInfo.portions &&
+        <Typography variant="h6" className={classes.text}>
+          Yield Portions: {portions}
+        </Typography>
+        }
       </div>
     </Fragment>
   )

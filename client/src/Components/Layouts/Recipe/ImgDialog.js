@@ -5,7 +5,7 @@ import { Dialog, DialogContent } from '@material-ui/core'
 
 const styles = {
   recipeDialogContent: {
-    display: "flex"
+    display: "flex",
   },
   recipeDialogImg: {
     maxWidth: "100%",
