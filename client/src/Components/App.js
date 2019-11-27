@@ -154,7 +154,7 @@ class App extends Component {
                 ) : (
                   <Fragment>
                     <PrivateRoute exact path="/" component={RecipeDrawer} recipeDrawerProps={recipeDrawerProps} isAuth={isAuth} redirectTo="/login" />
-                    <PrivateRoute exact path="/recipe/create" component={RecipeForm} isAuth={isAuth} redirectTo="/login" />
+                    <PrivateRoute exact path="/recipes/create" component={RecipeForm} isAuth={isAuth} redirectTo="/login" />
                     <Route exact path="/login" render={ props => <Auth {...props} isAuth={isAuth} updateAppStates={this.updateAppStates} /> } />
                     <Route exact path="/register" render={ props => <Register {...props} isAuth={isAuth} updateAuthState={this.updateAuthState} updateAppStates={this.updateAppStates} /> } />
                   </Fragment>

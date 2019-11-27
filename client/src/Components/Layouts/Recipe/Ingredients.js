@@ -12,12 +12,11 @@ const styles = theme => ({
 })
 
 const ingredientToString = (ingredient) => {
-  console.log(ingredient)
-  let mesure = ingredient.mesure == null || ingredient.mesure === 'Unit' ? '' : ingredient.mesure
-  let quantity = ingredient.quantity == null ? '' : `, ${ingredient.quantity}`
-  let indication = ingredient.indication == null ? '' : `: ${ingredient.indication}`
-
-  return `${ingredient.name}${quantity}${mesure}${indication }`
+  let quantity = ingredient.quantity == null                              ? '' : `${ingredient.quantity}`
+  let mesure = ingredient.mesure == null || ingredient.mesure === 'Unit'  ? '' : ingredient.mesure
+  let indication = ingredient.indication == null || ingredient.indication == '' ? '' : `: ${ingredient.indication}`
+  console.log(ingredient.indication)
+  return `${quantity}${mesure} ${ingredient.name}${indication }`
 }
 
 const Ingredients = (props) => {

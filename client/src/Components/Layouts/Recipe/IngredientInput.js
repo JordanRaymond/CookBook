@@ -4,23 +4,43 @@ import { withStyles } from '@material-ui/core/styles'
 
 import Ingredients from './Ingredients'
 import EditIcon from '@material-ui/icons/Edit'
-import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
+import DeleteIcon from '@material-ui/icons/Delete'
+import CheckIcon from '@material-ui/icons/Check'
+import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp'
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
 
 import FormInputs from '../../../Lib/Validation/FormInputs'
 import FormInput from '../../../Lib/Validation/Input'
 import { IsRequired, MinLength, IsAlphanumeric } from '../../../Lib/Validation/rulesStrategies'
+import color from '@material-ui/core/colors/purple';
 
 const styles = theme => ({
     root: {
+        marginTop:  theme.spacing.unit * 1,
         padding: '2px 4px',
         display: 'flex',
-        alignItems: 'center',
       },
       input: {
         marginLeft: theme.spacing.unit * 1,
         flex: 1,
       },
+      removeIconButton: {
+        padding: 10,
+      },
       iconButton: {
+        padding: 10,
+      },  
+      checkButton: {
+        top:'29%',
+      },
+      arrowsRoot: {
+        marginLeft:'auto',
+        justifyContent:'flex-end',
+        display: 'flex',
+        flexDirection:'column',
+        alignItems: 'center',
+      },
+      iconUpArrow: {
         padding: 10,
       },
       divider: {
@@ -30,6 +50,9 @@ const styles = theme => ({
       form: {
         marginRight: theme.spacing.unit * 2
       },
+      ingredientString: {
+        paddingTop: theme.spacing.unit * 1
+      }
 })
 
 class IngredientInput extends Component {
@@ -69,6 +92,13 @@ class IngredientInput extends Component {
     ))
   )
 
+  doesIngredientHaveErrors = () => {
+    return this.props.name.haveErrors() 
+    || this.props.mesure.haveErrors() 
+    || this.props.quantity.haveErrors() 
+    || this.props.indication.haveErrors()
+  }
+
   handleIsInputEdit = () => {
     this.setState({isBeingEdited: !this.state.isBeingEdited})
   }
@@ -82,18 +112,28 @@ class IngredientInput extends Component {
         indication: this.props.indication.value
     }]
     
-    const index = this.props.index
+    const haveError = this.doesIngredientHaveErrors()
+    const ingredientNumber = this.props.ingredientNumber
+    const ingredientIndex = this.props.ingredientIndex
+
     return (
-        <Paper component="form" className={classes.root}>
-            <IconButton className={classes.iconButton} aria-label="menu" onClick={() => this.handleIsInputEdit()}>
-                {this.state.isBeingEdited ? <EditOutlinedIcon /> : <EditIcon />}
-            </IconButton>
+        <Paper className={classes.root}>
+            <div>            
+              {this.state.isBeingEdited && (                
+                <IconButton className={classes.removeIconButton} aria-label="Delete" onClick={() => this.handleIsInputEdit()}>
+                  <DeleteIcon />
+                </IconButton>
+              )}
+              <IconButton className={(this.state.isBeingEdited ? classes.checkButton : classes.iconButton)} aria-label="Edit/Save" onClick={() => this.handleIsInputEdit()}>
+                  {this.state.isBeingEdited ? <CheckIcon /> : <EditIcon {...(haveError && {color:'error'})} />}
+              </IconButton>
+            </div>
             {this.state.isBeingEdited ? (
                 <div className={classes.form}>
                     {this.formControl(
                         'Name', 
-                        'name'+index, 
-                        ingredient.name, 
+                        'name'+ingredientNumber, 
+                        this.props.name.value, 
                         this.props.handleInputChange, 
                         this.props.handleInputBlur, 
                         this.props.name.haveErrors(), 
@@ -101,8 +141,8 @@ class IngredientInput extends Component {
                         false)}
                     {this.formControl(
                         'Mesure unit', 
-                        'mesure'+index, 
-                        ingredient.mesure, 
+                        'mesure'+ingredientNumber, 
+                        this.props.mesure.value, 
                         this.props.handleInputChange, 
                         this.props.handleInputBlur, 
                         this.props.mesure.haveErrors(), 
@@ -110,8 +150,8 @@ class IngredientInput extends Component {
                         false)}
                     {this.formControl(
                         'Quantity', 
-                        'quantity'+index, 
-                        ingredient.quantity, 
+                        'quantity'+ingredientNumber, 
+                        this.props.quantity.value, 
                         this.props.handleInputChange, 
                         this.props.handleInputBlur, 
                         this.props.quantity.haveErrors(), 
@@ -119,17 +159,34 @@ class IngredientInput extends Component {
                         false)}
                     {this.formControl(
                         'Additional Indication', 
-                        'indication'+index, 
-                        ingredient.indication, 
+                        'indication'+ingredientNumber, 
+                        this.props.indication.value, 
                         this.props.handleInputChange, 
                         this.props.handleInputBlur, 
                         this.props.indication.haveErrors(), 
                         this.props.indication.errors,
                         false)}
                </div>
-            ) : <Ingredients ingredients={ingredient}/>
+            ) : (
+              <Fragment >
+                <div className={classes.ingredientString}>
+                  <Ingredients  ingredients={ingredient}/>
+                </div>
+                <div className={classes.arrowsRoot}>
+                  {ingredientIndex !== 0 && (
+                    <IconButton className={classes.iconUpArrow} aria-label="Move up" onClick={() => this.props.moveIngredientUp(ingredientIndex)}>
+                      <ArrowDropUpIcon />
+                    </IconButton>  
+                  )}
+                  {!this.props.isLastIngredient && (
+                    <IconButton className={classes.iconButton} aria-label="Move down" onClick={() => this.props.moveIngredientDown(ingredientIndex)}>
+                      <ArrowDropDownIcon />
+                    </IconButton>
+                  )}
+                </div>
+              </Fragment>
+              )
             }
-        
         </Paper>
     )
   }
