@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const Recipe = sequelize.define('Recipes', {
+  const Recipe = sequelize.define("Recipes", {
     recipeId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -10,56 +10,57 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        notEmpty: true,  
+        notEmpty: true
       }
     },
     websiteName: {
       type: DataTypes.STRING,
       allowNull: true,
       validate: {
-        notEmpty: true,  
+        notEmpty: true
       }
     },
     recipeUrl: {
       type: DataTypes.STRING,
       allowNull: true,
       validate: {
-        notEmpty: true,  
+        notEmpty: true
       }
     },
     recipeImgUrl: {
       type: DataTypes.STRING,
       allowNull: true,
       validate: {
-        notEmpty: true,  
+        notEmpty: true
       }
     },
     preparationTime: {
       type: DataTypes.INTEGER,
-      allowNull: true,
+      allowNull: true
     },
     cookingTime: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
+      type: DataTypes.INTEGER,
+      allowNull: true
     },
     portions: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-    },
+      type: DataTypes.INTEGER,
+      allowNull: true
+    }
   })
 
-   // Instance function
-   Recipe.prototype.toJson = function() {
+  // Instance function
+  Recipe.prototype.toJson = function() {
     return {
+      recipeId: this.recipeId,
       websiteName: this.websiteName,
       recipeUrl: this.recipeUrl,
       title: this.title,
       recipeInfo: {
         preparationTimeInMs: this.preparationTime,
         cookTimeInMs: this.cookingTime,
-        portions: this.portions,
+        portions: this.portions
       },
-      recipeImgUrl: this.recipeImgUrl,
+      recipeImgUrl: this.recipeImgUrl
     }
   }
 
