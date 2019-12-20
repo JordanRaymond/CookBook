@@ -1,0 +1,23 @@
+.presentation-section {
+    display: flex;
+    min-height: 70vh;
+    overflow: hidden;
+    justify-content: center;
+    flex-direction: column;
+    color: $light;
+     .btn {
+         padding: .8rem 2rem;
+     }
+     .btn {
+        font-weight: bold;
+     }
+     .btn-primary {
+        background: color-yiq(theme-color("primary"));
+        color: theme-color("primary");
+    }
+    .btn-secondary {
+        background: theme-color("dark");
+        color: theme-color("light");
+        border: none;
+    }
+}

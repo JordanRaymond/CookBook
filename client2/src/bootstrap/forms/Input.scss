@@ -1,0 +1,49 @@
+.form-input-container {
+    margin-bottom: 10px;
+
+    input {
+        min-width: 125px;
+        // min-height: 36px;
+        border: 1px solid #eee;
+        border-left: 4px solid;
+        border-radius: 5px;
+        transition: border-color .5s ease-out;
+        border-left-color: $success;
+        
+        &[type=text], &[type=password], &[type=email]  {
+            padding-left: 10px;
+        }
+
+
+        &.invalid {
+            border-left-color: $danger;
+        }
+
+        &.optional {
+            border-left-color: #999;
+        }
+
+        &.valid {
+            border-left-color: $success;
+        }
+    }
+
+   
+
+    
+
+
+
+    .fw {
+        width: 100%;
+    }
+
+    p {
+        &.error {
+            color: $danger;
+            margin-bottom: 0;
+        }
+    }
+
+  
+}

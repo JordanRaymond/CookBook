@@ -1,0 +1,15 @@
+@import "custom";
+@import "Header";
+@import "Presentation";
+@import "Auth";
+@import "./forms/Input.scss";
+@import "./Dasboard.scss";
+@import "./Sidebar.scss";
+@import "./recipe/recipe.scss";
+
+body,
+html {
+  height: 100vh;
+  width: 100vw;
+  font-family: Avantgarde, TeX Gyre Adventor, URW Gothic L, sans-serif;
+}

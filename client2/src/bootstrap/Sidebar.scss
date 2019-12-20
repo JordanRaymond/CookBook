@@ -1,0 +1,132 @@
+.sidebar {
+  min-width: 250px;
+  max-width: 250px;
+  min-height: 100vh;
+  position: fixed;
+  overflow-x: hidden;
+  background-color: theme-color("secondary");
+  box-shadow: 0 0rem 3rem rgba(0, 0, 0, 0.175) !important;
+  color: $light;
+
+  &.active {
+    margin-left: -250px;
+  }
+
+  .sidebar-header {
+    padding: 20px;
+    background-color: theme-color("secondary2");
+  }
+
+  ul li button {
+    width: 100%;
+    text-align: left;
+    background-color: theme-color("secondary");
+  }
+
+  button:focus {
+    outline: 0;
+  }
+
+  .item,
+  button {
+    border: none;
+  }
+
+  a,
+  a:hover,
+  a:focus {
+    color: $light;
+    text-decoration: none;
+    position: relative;
+  }
+
+  .item,
+  .item:hover,
+  .item:focus {
+    color: $light;
+    text-decoration: none;
+    position: relative;
+  }
+
+  button,
+  button:hover,
+  button:focus {
+    color: $light;
+    text-decoration: none;
+    position: relative;
+  }
+
+  .dropdown-toggle::after {
+    display: block;
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+  }
+
+  p {
+    font-size: 1.1em;
+    font-weight: 300;
+    line-height: 1.7em;
+    color: #999;
+  }
+
+  .ul-container {
+    padding: 20px 0;
+    //border-bottom: 1px solid rgba(255, 255, 255, 0.178);
+  }
+
+  ul p {
+    color: #fff;
+    padding: 10px;
+  }
+
+  ul li:last-child {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.178);
+  }
+
+  ul li a,
+  ul li .item,
+  ul li button {
+    padding: 10px;
+    font-size: 1.1em;
+    display: block;
+  }
+
+  ul li a:hover,
+  ul li .item:hover,
+  ul li button:hover {
+    color: #7386d5;
+    background: #fff;
+  }
+
+  /* Dropdown header/button */
+  ul li.active > a,
+  ul li.active > .item,
+  ul li.active > button,
+  a[aria-expanded="true"],
+  button[aria-expanded="true"] {
+    color: $light;
+    background-color: theme-color("secondary3");
+  }
+
+  ul ul a,
+  ul ul .item,
+  ul ul button {
+    text-align: left;
+    width: 100%;
+    font-size: 0.9em !important;
+    padding-left: 30px !important;
+    background-color: theme-color("secondary4");
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    margin-left: -250px;
+  }
+  .sidebar.active {
+    margin-left: 0;
+    z-index: 1;
+  }
+}

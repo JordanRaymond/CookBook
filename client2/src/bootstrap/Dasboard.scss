@@ -1,0 +1,24 @@
+.sidebar-fix {
+  padding-left: 0;
+}
+
+.recipe-body {
+  width: 100%;
+  background-color: $light;
+  //background-color: firebrick;
+  padding: 20px;
+}
+
+.recipe-container {
+  width: 100%;
+  background-color: $light;
+  margin-left: $sidebarWidth + 50px !important;
+  border-radius: 3px;
+  box-shadow: 1rem 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+}
+
+@media (max-width: 768px) {
+  .recipe-container {
+    margin-left: 50px !important;
+  }
+}

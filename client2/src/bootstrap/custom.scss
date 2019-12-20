@@ -1,0 +1,16 @@
+/* make the customizations */
+/* ONLY FOR CUSTOMIZING BOOTSTRAP */
+$theme-colors: (
+  "primary": #3755be,
+  "secondary": #273874,
+  "secondary2": #567bff,
+  "secondary3": #415cbf,
+  "secondary4": #344999
+);
+
+$light2: #a2b1c0;
+$body-bg: #3755be;
+$sidebarWidth: 250px;
+
+/* import bootstrap to set changes */
+@import "../../node_modules/bootstrap/scss/bootstrap";
