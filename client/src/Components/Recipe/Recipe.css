@@ -2,7 +2,7 @@
   background-attachment: fixed;
   background-repeat: no-repeat;
   position: relative;
-  background-position: center; 
+  background-position: center;
   background-size: cover;
 }
 .titleContainer {
@@ -14,7 +14,7 @@
   overflow: hidden;
 }
 
- .titleContainer::before {
+.titleContainer::before {
   content: "";
   position: absolute;
   width: 100%;
@@ -31,8 +31,9 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.39)
+  background: rgba(0, 0, 0, 0.39);
 }
+
 .rightImgContainer > .typo {
   margin: 10px;
   height: auto;
@@ -40,7 +41,7 @@
   position: relative;
   z-index: 1;
 }
-.rightImgContainer{
+.rightImgContainer {
   display: flex;
   flex-direction: column;
 }
@@ -54,5 +55,3 @@
   margin: 5px;
   z-index: 1;
 }
-
-
