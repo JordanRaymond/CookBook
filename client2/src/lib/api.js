@@ -21,10 +21,10 @@ const login = async (email, password) => {
       let message
       if (status === 401) {
         message = "Invalid pasword or email."
-      } else if (status == undefined) {
+      } else if (status === undefined) {
         message = "Server did not respond"
       } else {
-        message = `Server responded with a status ${status} ${data !=
+        message = `Server responded with a status ${status} ${data !==
           undefined && `and with the message: ${data.message}`}.`
       }
       return {
@@ -39,7 +39,7 @@ const login = async (email, password) => {
 
 const logout = async () => {
   try {
-    const [status, data] = await axios.get(`${SERVER_URL}/user/logout`)
+    const [status] = await axios.get(`${SERVER_URL}/user/logout`)
 
     if (status === 200) {
       return {
@@ -109,10 +109,10 @@ const register = async (email, username, password, passwordConf) => {
       let message
       if (status === 400) {
         message = "Invalid pasword, username or email."
-      } else if (status == undefined) {
+      } else if (status === undefined) {
         message = "Server did not respond"
       } else {
-        message = `Server responded with a status ${status} ${data !=
+        message = `Server responded with a status ${status} ${data !==
           undefined && `and with the message: ${data.message}`}.`
       }
       return {

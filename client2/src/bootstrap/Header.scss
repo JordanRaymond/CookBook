@@ -1,12 +1,16 @@
 .header {
     width: 100vw;
-    align-items: center;
     background-color: rgba(0, 0, 0, 0);
     border-bottom: 1px solid rgba(255, 255, 255, 0.178);
+    
+    font-size: 1.4rem;
     font-weight: 600;
-    padding-left: 17%;
-    padding-right: 17%;
-    .brand {
-        color: red;
+
+    align-items: center;    
+    padding-left: 3%;
+    padding-right: 4%;
+
+    .navbar-brand {
+        font-size: 2rem;
     }
   }

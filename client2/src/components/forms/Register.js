@@ -1,21 +1,24 @@
 import React, { Component } from "react"
-import { AuthContext } from "../contexts/AuthContext"
+import { AuthContext } from "../../contexts/AuthContext"
 import { useHistory, Link } from "react-router-dom"
 
 import Container from "react-bootstrap/Container"
-import Input from "./forms/Input"
+import Input from "./Input"
 import { Redirect } from "react-router-dom"
 import ReactLoading from "react-loading"
 
-import FormInputs from "../lib/Validation/FormInputs"
-import FormInput from "../lib/Validation/Input"
+import FormInputs from "../../lib/Validation/FormInputs"
+import FormInput from "../../lib/Validation/Input"
 import {
   IsRequired,
   MinLength,
-  IsEmail
-} from "../lib/Validation/rulesStrategies"
+  IsEmail,
+  IsPassword,
+  MustMatch,
+  IsAlphanumeric
+} from "../../lib/Validation/rulesStrategies"
 
-class Login extends Component {
+class Register extends Component {
   static contextType = AuthContext
 
   constructor(props) {
@@ -23,12 +26,26 @@ class Login extends Component {
 
     this.state = {
       isAuth: false, // TODO
-      is2ndTitleHover: false,
       waitingForRes: false,
+      is2ndTitleHover: false,
       errors: [],
       formInputs: new FormInputs({
         email: new FormInput([new IsRequired(), new IsEmail()]),
-        password: new FormInput([new IsRequired(), new MinLength(6)])
+        username: new FormInput([
+          new IsRequired(),
+          new IsAlphanumeric(),
+          new MinLength(6)
+        ]),
+        password: new FormInput([
+          new IsRequired(),
+          new IsPassword(),
+          new MinLength(6)
+        ]), // TODO: Check isPassword regex, can pass without a number
+        passwordConf: new FormInput([
+          new IsRequired(),
+          new MustMatch("password"),
+          new MinLength(6)
+        ])
       })
     }
   }
@@ -38,7 +55,7 @@ class Login extends Component {
     this.setState({ isAuth: user != null })
   }
 
-  handleInputChange = event => {
+  handleInputChange = (event, args) => {
     let formCopy = Object.assign(
       Object.create(this.state.formInputs),
       this.state.formInputs
@@ -47,6 +64,7 @@ class Login extends Component {
 
     const inputName = event.target.name
 
+    formCopy.input(inputName).args = args
     formCopy.input(inputName).validate()
     formCopy.input(inputName).isTouched = true
 
@@ -79,12 +97,19 @@ class Login extends Component {
 
     if (formIsValid) {
       try {
-        const { login } = this.context
+        const { register } = this.context
         this.setState({ waitingForRes: true })
 
-        const { successful, message } = await login(
-          formCopy.input("email").value,
-          formCopy.input("password").value
+        const email = formCopy.input("email").value
+        const username = formCopy.input("username").value
+        const password = formCopy.input("password").value
+        const passwordConf = formCopy.input("passwordConf").value
+
+        const { successful, message } = await register(
+          email,
+          username,
+          password,
+          passwordConf
         )
 
         if (successful) {
@@ -151,16 +176,16 @@ class Login extends Component {
                   <h5
                     className={`card-title ${!isTitleSelected && `selected`}`}
                   >
-                    {"Sign In "}
+                    {"Sign Up"}
                   </h5>
                   <p className={"px-2"}>{" or"}</p>
-                  <Link to="/register">
+                  <Link to="/login">
                     <h5
                       className={`card-title ${isTitleSelected && `selected`}`}
                       onMouseOver={this.handleTitleOver}
                       onMouseLeave={this.handleTitleExit}
                     >
-                      {"Sign Up"}
+                      {"Sign In"}
                     </h5>
                   </Link>
                 </div>
@@ -185,6 +210,19 @@ class Login extends Component {
                     handleInputBlur={this.handleInputBlur}
                   />
                   <Input
+                    label="Username"
+                    type="text"
+                    placeholder="username"
+                    fullWith
+                    required
+                    name="username"
+                    isValid={formInputs.input("username").isValid}
+                    errors={formInputs.input("username").errors}
+                    value={formInputs.input("username").value}
+                    onChange={this.handleInputChange}
+                    handleInputBlur={this.handleInputBlur}
+                  />
+                  <Input
                     label="Password"
                     type="password"
                     placeholder="password"
@@ -198,6 +236,25 @@ class Login extends Component {
                     handleInputBlur={this.handleInputBlur}
                     onKeyDown={this.handleKeyDown}
                   />
+                  <Input
+                    label="Password confirmation"
+                    type="password"
+                    placeholder="password confirmation"
+                    required
+                    fullWith
+                    name="passwordConf"
+                    isValid={formInputs.input("passwordConf").isValid}
+                    errors={formInputs.input("passwordConf").errors}
+                    value={formInputs.input("passwordConf").value}
+                    onChange={e =>
+                      this.handleInputChange(e, {
+                        value: formInputs.input("password").value,
+                        inputName: "password"
+                      })
+                    }
+                    handleInputBlur={this.handleInputBlur}
+                    onKeyDown={this.handleKeyDown}
+                  />
                   <div className="custom-control custom-checkbox mb-3">
                     <input
                       type="checkbox"
@@ -208,7 +265,7 @@ class Login extends Component {
                       className="custom-control-label"
                       htmlFor="customCheck1"
                     >
-                      Remember password
+                      Accept terms
                     </label>
                   </div>
 
@@ -225,7 +282,7 @@ class Login extends Component {
                         <div></div>
                       </div>
                     ) : (
-                      "Sign in"
+                      "Sing Up"
                     )}
                   </button>
                   <hr className="my-4" />
@@ -255,4 +312,4 @@ class Login extends Component {
   }
 }
 
-export default Login
+export default Register

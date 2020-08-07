@@ -51,6 +51,11 @@ app.use(
 app.use(passport.initialize())
 app.use(passport.session())
 
+app.use((err, req, res, next) => { 
+  console.log("++++++++++++++++++++Here")
+  next()
+ })
+
 // Routes
 app.use(require('./routes'))
 

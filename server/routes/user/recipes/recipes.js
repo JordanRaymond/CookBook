@@ -10,10 +10,8 @@ const {
 } = require("../../../models")
 const asyncMiddleware = require("../../../utils/asyncMiddleware")
 const asyncForEach = require("../../../utils/asyncForEach")
-const areRecipeInputsValid = require("../../../utils/validation/recipeValidation")
-const { isFromType } = require("../../../utils/validation/validation")
-
-const { isEmpty } = require("../../../utils/validation/validation")
+const areRecipeInputsValid = require("../../../utils/validation/recipeValidation") // Todo I think this is a mess 
+const { isFromType, isEmpty } = require("../../../utils/validation/validation")
 
 router.get(
   "/",
@@ -33,28 +31,35 @@ router.get(
   })
 )
 
+/*
+* Mais je pense que cacher les codes 401,400, 
+* la declaration des textes d'erreur, et creation,
+* recherche de utilisateurs ca serait bien
+*/
 router.post(
   "/",
   asyncMiddleware(async (req, res, next) => {
     if (!req.isAuthenticated()) {
+      // new UnauthorizedResponse
       return res.status(401).json({
         isAuth: false,
-        message: "User not authenticated, can't get create new recipe."
+        message: "User not authenticated, can't create new recipe."
       })
     }
-    const errMsg = `Validation of the recipe form inputs failed.`
-    const recipeData = req.body
 
+    const recipeData = req.body
     const areRecipeDataValid = isRecipeValid(recipeData)
 
     if (!areRecipeDataValid) {
+      // new ErrorResponse
       return res.status(400).json({
-        message: errMsg
+        message: `Validation of the recipe form inputs failed.`
       })
     }
     let user = await User.findOne({ where: { email: req.user.email } })
     const recipe = await createNewRecipe(recipeData, user)
 
+      // new JsonResponse
     return res.status(200).json({ recipeData: recipeData })
   })
 )

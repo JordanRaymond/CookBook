@@ -1,8 +1,8 @@
-import React, { Fragment, useEffect, useState } from "react"
-import Container from "react-bootstrap/Container"
+import React, { useEffect, useState } from "react"
+import {Container, Row, Col} from "react-bootstrap"
 
-import Header from "./recipe/Header"
 import RecipeSidebar from "./RecipesSidebar"
+import Recipe from "./recipe/Recipe"
 import { getUserRecipes } from "../lib/api"
 
 function refineRecipes(recipes) {
@@ -42,23 +42,23 @@ const RecipesDashboard = () => {
   }
 
   function setRecipe(recipeId) {
-    setSelectedRecipe(recipes.find(recipe => recipe.recipeId == recipeId))
+    const recipe = recipes.find(recipe => recipe.recipeId == recipeId)
+    if (recipe) {
+      setSelectedRecipe(recipe)
+    }
   }
 
-  const barRecipes = refineRecipes(recipes)
+  const refinedRecipes = refineRecipes(recipes)
 
   return (
-    <Fragment>
-      <Container fluid className="sidebar-fix">
-        <RecipeSidebar recipes={barRecipes} setRecipe={setRecipe} />
-        <div className="row">
-          <div className="col-10 col-sm-10 col-md-8 col-lg-8 col-xl-9 mx-auto my-4 recipe-container">
-            {/*<Header recipe={selectedRecipe} />*/}
-            <h1>test</h1>
-          </div>
-        </div>
+      <Container fluid>
+        <Row>
+          <RecipeSidebar recipes={refinedRecipes} setRecipe={setRecipe} />
+          <Col lg={9} sm={8} xs={10} className="mx-auto mt-3 mb-3 recipe-container">
+            <Recipe recipe={selectedRecipe} />
+          </Col>
+        </Row>
       </Container>
-    </Fragment>
   )
 }
 

@@ -21,14 +21,16 @@ const ingredientToString = (ingredient) => {
 
 const Ingredients = (props) => {
   const { classes } = props
-  const { ingredients } = props
+  let { ingredients } = props
   // console.log(ingredients)
+  ingredients = ingredients[0].ingredients
+
   return (  
           <Fragment>
             {
               Array.isArray(ingredients) 
               ? ingredients.map((ingredient) => (
-                <Typography variant="body2" key={ingredient} >
+                <Typography variant="body2" key={ingredient.name} >
                   {ingredientToString(ingredient)}
                 </Typography>
               ))

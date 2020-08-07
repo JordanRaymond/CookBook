@@ -55,13 +55,14 @@ class AxiosWrap {
         return { message, status }
     }
 
-    get(path, callback) {
+    
+    get(path) {
         return this.service.get(path).then(
             (response) => [response.status, response.data]
         )
     }
 
-    patch(path, payload, callback) {
+    patch(path, payload) {
         return this.service.request({
             method: 'PATCH',
             url: path,

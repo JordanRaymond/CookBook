@@ -1,36 +1,115 @@
+
+.recipe-body {
+  background-color: $light;
+}
+
+.recipe-container {
+  width: 100%;
+  min-height: calc(100vh - #{$headerOffset + 50});
+  background-color: $light;
+  border-radius: 4px;
+  box-shadow: 1rem 1rem 3rem rgba(0, 0, 0, 0.479) !important;
+}
+
 .recipe-header {
-  justify-content: center;
-  background-repeat: no-repeat;
   position: relative;
-  background-position: center;
-  background-size: cover;
-  padding: 10px 25px;
-  background-color: red;
+  min-height: 8rem;
+  min-width: 100%;
+  overflow: hidden;
+  
+  
+  .header-title {
+    padding-top: 1rem;
+    line-height: 2rem;
+    color: $light;
+    z-index: 1;
+  }
+
+  hr {
+    border-color: $light;
+  }
+  
+  dt {
+    float: left;
+    clear: left;
+    margin-right: 5px;
+    font-weight: bold;
+  }
+
+  dd {
+    margin-left: 0px;
+    margin-bottom: 2px;
+  }
+
+  .recipe-header-img {
+    max-width: 100%;
+    height: auto;
+    padding-right: 15px;
+    max-height: 200px;
+
+    @include media-breakpoint-down(lg){
+      margin-top: 1rem;
+    }
+
+    @include media-breakpoint-down(xl){
+      margin-top: 1.2rem;
+    }
+  }
+
+  .recipe-header-background {
+    position: absolute;
+    width: 110%; 
+    height: 115%; 
+
+    top: -25px;
+    left: -15px;
+    right: 0;
+    bottom: 0;
+
+    justify-content: center;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+
+    filter: blur(20px) brightness(50%);
+  }
+  
+
+
+  .black-title {
+    align-self: center;
+    width: 100%;
+    color: black;
+  }
+
+  .recipe-header-info {
+    z-index: 1;
+    color: $light;
+  }
 }
 
-.recipe-header::before {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: inherit;
-  background-attachment: fixed;
-  -webkit-filter: blur(12px);
-  filter: blur(2px);
-}
+.recipe-steps {
 
-.recipe-header::after {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.39);
-}
-
-.recipe-header {
-  -webkit-filter: blur(12px);
-  filter: blur(2px);
-}
-
-.header-title {
+  ol {
+    margin: 0 0 1.5em;
+    padding: 0;
+    counter-reset: item;
+  }
+  
+  ol > li {
+    margin: 0;
+    padding: 0 0 0 2em;
+    text-indent: -2em;
+    list-style-type: none;
+    counter-increment: item;
+  }
+  
+  ol > li:before {
+    display: inline-block;
+    width: 1em;
+    padding-right: 0.5em;
+    font-weight: bold;
+    text-align: right;
+    content: counter(item) ".";
+  }
 }

@@ -42,7 +42,8 @@ class Recipe extends Component {
 
   render() {
     const { classes, isDrawerOpen } = this.props
-    const { title, ingredients, websiteName, recipeInfo, steps, recipeImgUrl } = this.props.recipe
+    const { title, ingredientsLists, websiteName, recipeInfo, stepsLists, recipeImgUrl } = this.props.recipe
+    // todo ingredients are now a list of ingredients list as welll as steps is now a list of list of steps... x)
     let haveRecipe = this.props.recipe.title !== undefined
     console.log('called recipe')
     return (
@@ -58,16 +59,21 @@ class Recipe extends Component {
               </Typography>
             :
               <Fragment> 
-                <RecipeHeader title={title} websiteName={websiteName} recipeInfo={recipeInfo} recipeImgUrl={recipeImgUrl}/>
+                <RecipeHeader 
+                  title={title} 
+                  websiteName={websiteName} 
+                  recipeInfo={recipeInfo} 
+                  recipeImgUrl={recipeImgUrl}
+                />
                 
                 <div style={{ paddingBottom: 50 }}>
                   <Typography variant="h3" mb={100}>
                     Ingredients
                   </Typography>
-                  <Ingredients ingredients={ingredients} />
+                  <Ingredients ingredients={ingredientsLists} />
                 </div>
 
-                <Steps steps={steps} />
+                <Steps steps={stepsLists} />
               </Fragment>
             }
           </Paper>

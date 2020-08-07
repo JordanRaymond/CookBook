@@ -1,32 +1,42 @@
 import React, { Fragment } from "react"
 import { useAuthentication } from "../contexts/AuthContext"
 
-import Container from "react-bootstrap/Container"
 import Header from "./Header"
 import Presentation from "./Presentation"
 import PrivateRoute from "./routes/PrivateRoute"
 import RecipesDashboard from "./RecipesDashboard"
-import Login from "./Login"
-import Register from "./Register"
+import Login from "./forms/Login"
+import Register from "./forms/Register"
+import CreateRecipe from './forms/newRecipeForm/CreateRecipe'
 import { Route, Switch } from "react-router-dom"
+import Loading from './Loading'
 
 function Main() {
-  const { user } = useAuthentication()
+  const { user, pending } = useAuthentication()
   console.log(`Login user: ${user}`)
 
   return (
     <Fragment>
       <Header />
       <Switch>
-        <PrivateRoute path="/recipes"></PrivateRoute>
         <Route exact path="/login">
           <Login />
         </Route>
         <Route exact path="/register">
           <Register />
         </Route>
+        <PrivateRoute exact path="/recipes/new" redirectTo="/login">
+          <CreateRecipe />
+        </PrivateRoute>
         <Route path="/">
-          {user != null ? <RecipesDashboard /> : <Presentation />}
+          {
+            pending ? <Loading /> : (
+                user != null ? 
+                <RecipesDashboard /> 
+              : 
+                <Presentation />
+            )
+          }
         </Route>
       </Switch>
     </Fragment>

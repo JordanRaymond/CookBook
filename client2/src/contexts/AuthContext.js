@@ -10,22 +10,29 @@ export const AuthContext = createContext()
 
 const AuthContextProvider = ({ children }) => {
   const [user, setUser] = useState(null)
+  const [pending, setPending] = useState(true)
 
   async function checkIsAuth() {
+    setPending(true)
+
     try {
       const { user } = await isAuthenticate()
       setUser(user)
+      setPending(false)
     } catch (err) {
       console.log(err)
     }
   }
 
   async function login(email, password) {
+    setPending(true)
+
     try {
       const { user, message } = await apiLogin(email, password)
 
       if (user != null) {
         setUser(user)
+        setPending(false)
 
         return { successful: true, message }
       } else {
@@ -37,6 +44,8 @@ const AuthContextProvider = ({ children }) => {
   }
 
   async function register(email, username, password, passwordConf) {
+    setPending(true)
+
     const { user, message } = await apiRegister(
       email,
       username,
@@ -47,6 +56,7 @@ const AuthContextProvider = ({ children }) => {
     let successful = false
     if (user != null) {
       setUser(user)
+      setPending(false)
 
       successful = true
     }
@@ -55,9 +65,14 @@ const AuthContextProvider = ({ children }) => {
   }
 
   async function logout(email, password) {
+    setPending(true)
+
     try {
       const { status } = await apiLogout()
+
       setUser(null)
+      setPending(false)
+
     } catch (err) {
       console.error(`Logout err: ${err}`)
     }
@@ -68,7 +83,7 @@ const AuthContextProvider = ({ children }) => {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, register }}>
+    <AuthContext.Provider value={{ user, login, logout, register, pending }}>
       {children}
     </AuthContext.Provider>
   )

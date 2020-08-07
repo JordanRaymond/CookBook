@@ -17,17 +17,18 @@ const Input = (props) => {
     let {
         label, type="text", placeholder="placeholder", 
         isValid=false, errors, 
-        optional, fullWith, 
+        optional=false, fullWith, 
         onChange, value, handleInputBlur, onKeyDown,
         ...rest
     } = props
 
+    let isOptional = optional && value.length === 0 
     return ( 
         <div className="form-input-container">
             <label>{label || placeholder}</label>
             <input 
                 onChange={onChange} onBlur={handleInputBlur} onKeyDown={onKeyDown} value={value} 
-                className={`form-input ${fullWith && 'fw'} ${!isValid ? 'invalid' : 'valid'} ${(optional && value.length==0)  && 'optional'}`} 
+                className={`form-input ${fullWith && 'fw'} ${!isValid ? 'invalid' : 'valid'} ${isOptional ? 'optional'  : ""}`} 
                 type={type} placeholder={placeholder} 
                 {...rest}  
             />

@@ -14,7 +14,8 @@ const styles = theme => ({
 
 const Steps = (props) => {
   const { classes } = props
-  const { steps } = props
+  let { steps } = props
+  steps = steps[0].steps
 
   return (
           <Fragment>
@@ -24,8 +25,8 @@ const Steps = (props) => {
           {
             Array.isArray(steps) 
             ? steps.map((steps) => (
-                <Typography variant="body2" key={steps} >
-                {steps}
+                <Typography variant="body2" key={steps.description} >
+                {steps.description}
                 </Typography>
                ))
             : Object.entries(steps).map(([title, steps]) => (

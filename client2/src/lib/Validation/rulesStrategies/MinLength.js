@@ -10,7 +10,7 @@ class MinLength {
     }
 
     validate(value) {
-        const isEmpty = value == undefined || value.length === 0 
+        const isEmpty = value === undefined || value === null || value.length === 0 
         if(isEmpty) return { isValid: true }
         
         const isValid = value.length >= this.minLength

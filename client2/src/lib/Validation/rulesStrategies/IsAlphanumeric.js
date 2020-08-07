@@ -9,7 +9,7 @@ class IsAlphanumeric {
         const isEmpty = value == undefined || value.length === 0 
         if(isEmpty) return { isValid: true }
         
-        const re = /^\S[a-zA-Z0-9]*$/   
+        const re = /^[\w-!?.]+([-_ ]{1}[\w.!?]+)*$/   
         const isValid = re.test(String(value))
         const rule = IsAlphanumeric.ruleName
         const err = this.getErrorMessage()

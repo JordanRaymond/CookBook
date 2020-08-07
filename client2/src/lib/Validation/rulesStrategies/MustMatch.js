@@ -10,13 +10,13 @@ class MustMatch {
   }
 
   /*
-        Args should be an object { value: ..., inputName: ...}
-        Where value is the value to match and inputName is the name of the 
-        input to match (only used for the error message).
-    */
+    Args should be an object { value: ..., inputName: ...}
+    Where value is the value to match and inputName is the name of the 
+    input to match (only used for the error message).
+  */
   validate(value, args) {
     const string = args["value"]
-    const isEmpty = value == undefined || value.length === 0
+    const isEmpty = value === undefined || value === null || value.length === 0
     if (isEmpty) return { isValid: true }
 
     const isValid = value.trim() === string.trim()

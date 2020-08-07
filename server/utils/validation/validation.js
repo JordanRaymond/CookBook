@@ -18,7 +18,7 @@ function isText(string) {
 }
 
 function isAlphaNumeric(string) {
-    const isAlphaNumReg = /^\S[a-zA-Z0-9 ]*$/
+    const isAlphaNumReg = /^[\w-!?.]+([-_ ]{1}[\w.!?]+)*$/
     return isAlphaNumReg.test(String(string).trim())
 }
 

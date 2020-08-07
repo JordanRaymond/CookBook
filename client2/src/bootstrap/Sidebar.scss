@@ -1,26 +1,41 @@
 .sidebar {
   min-width: 250px;
   max-width: 250px;
-  min-height: 100vh;
-  position: fixed;
-  overflow-x: hidden;
+  min-height:  calc(100vh - #{$headerOffset});
+  position: relative;
+  transition: all 0.3s;
+  //  margin-right: 5em;
   background-color: theme-color("secondary");
   box-shadow: 0 0rem 3rem rgba(0, 0, 0, 0.175) !important;
   color: $light;
 
-  &.active {
+  
+
+  @include media-breakpoint-down(xl){
     margin-left: -250px;
+    z-index: 2;
+    &.active {
+        margin-left: 0;
+    }
   }
 
   .sidebar-header {
     padding: 20px;
-    background-color: theme-color("secondary2");
+    background-color: theme-color("secondary");
   }
 
-  ul li button {
-    width: 100%;
-    text-align: left;
-    background-color: theme-color("secondary");
+  ul li {
+    padding-bottom: 2;
+
+    button {
+      width: 100%;
+      text-align: left;
+      background-color: theme-color("secondary");
+    }
+  }
+
+  ul li:last-child {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.178);
   }
 
   button:focus {
@@ -32,6 +47,7 @@
     border: none;
   }
 
+  // Wth, dry this up, create a class  
   a,
   a:hover,
   a:focus {
@@ -68,11 +84,20 @@
     font-size: 1.1em;
     font-weight: 300;
     line-height: 1.7em;
-    color: #999;
+
+    margin-bottom: 0;
   }
 
   .ul-container {
     padding: 20px 0;
+    height: 70vh;
+    max-height: 100%;
+    overflow-y: auto;
+
+    li ul {
+      max-height: 250px;
+      overflow-y: auto;
+    }
     //border-bottom: 1px solid rgba(255, 255, 255, 0.178);
   }
 
@@ -81,9 +106,7 @@
     padding: 10px;
   }
 
-  ul li:last-child {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.178);
-  }
+
 
   ul li a,
   ul li .item,
@@ -119,14 +142,56 @@
     padding-left: 30px !important;
     background-color: theme-color("secondary4");
   }
+
+  .custom-sidebar-button{
+		display: inline-block;
+		position: absolute;
+		top: 20px;
+		right: 0;
+		margin-right: -25px;
+		@include transition(.3s);
+		.btn{
+			width: 60px;
+			height: 60px;
+			border-radius: 50%;
+			position: relative;
+			i{
+				margin-right: -40px;
+				font-size: 14px;
+			}
+			&.btn-primary{
+				background: transparent;
+				border-color: transparent;
+				&:after{
+					z-index: -1;
+					position: absolute;
+					top: 0;
+					left: 0;
+					right: 0;
+					bottom: 0;
+					content: '';
+				  transform: rotate(45deg);
+				  background: theme-color("secondary");;
+				  border-radius: 10px;
+				}
+				&:hover, &:focus{
+					background: transparent !important;
+					border-color: transparent !important;
+				}
+			}
+		}
+  }
 }
 
-@media (max-width: 768px) {
+// use bootstrap var   @include media-breakpoint-down(xl){
+@include media-breakpoint-down(sm) {
   .sidebar {
     margin-left: -250px;
+    position: fixed;
   }
   .sidebar.active {
     margin-left: 0;
-    z-index: 1;
-  }
+    z-index: 2;
+    height: 100vh;
+    }
 }

@@ -5,12 +5,15 @@ $theme-colors: (
   "secondary": #273874,
   "secondary2": #567bff,
   "secondary3": #415cbf,
-  "secondary4": #344999
+  "secondary4": #344999,
+  "test" : red
 );
+
 
 $light2: #a2b1c0;
 $body-bg: #3755be;
 $sidebarWidth: 250px;
+$headerOffset: 75px; // 57px
 
 /* import bootstrap to set changes */
 @import "../../node_modules/bootstrap/scss/bootstrap";

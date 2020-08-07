@@ -40,6 +40,9 @@ class FormInputs {
   }
 
   updateInput(event) {
+    if(!event.target.name || ! this.inputs[event.target.name]) {
+      throw "The input should have a name attribute with the same value as its Forminput property."
+    }
     this.inputs[event.target.name].updateValue(event)
   }
 
