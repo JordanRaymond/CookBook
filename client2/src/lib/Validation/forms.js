@@ -1,43 +1,43 @@
-import React from 'react'
-import validate from './validate.js'
-import { FormHelperText } from '@material-ui/core'
+import React from "react"
+import validate from "./validate.js"
+// import { FormHelperText } from "@material-ui/core" // TODO Remove that, crate vanila html or own component
 
 const validateInputs = (formInputs, validator) => {
   let formInputsCpy = { ...formInputs }
 
-  Object.keys(formInputsCpy).forEach(inputName => {
+  Object.keys(formInputsCpy).forEach((inputName) => {
     let inputCopy = validateInput(inputName, formInputs, validator)
     formInputsCpy[inputName] = inputCopy
   })
-  
+
   return formInputsCpy
-} 
+}
 
 const validateInput = (inputName, formInputs, validator) => {
   let inputCopy = formInputs[inputName]
-  
+
   inputCopy.touched = true
-  
+
   const result = validator.validate(inputName, inputCopy.value)
-  inputCopy = { ...inputCopy, ...extractDataFromResult(result)}
-  
+  inputCopy = { ...inputCopy, ...extractDataFromResult(result) }
+
   return inputCopy
 }
 
-const extractDataFromResult= (result) => {
+const extractDataFromResult = (result) => {
   let isInputValid = true
   let errors = []
 
   for (let i in result) {
     let rule = result[i]
 
-    if(!rule.isValid) {
+    if (!rule.isValid) {
       isInputValid = false
-      if(rule.error.infringedRule === "isRequired") {
+      if (rule.error.infringedRule === "isRequired") {
         errors = [rule.error]
         return { isValid: isInputValid, errors }
       }
-  
+
       errors.push(rule.error)
     }
   }
@@ -46,49 +46,50 @@ const extractDataFromResult= (result) => {
 }
 
 const handleInputChange = (event, formInputs) => {
-    const inputName = event.target.name
-    const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value
+  const inputName = event.target.name
+  const value =
+    event.target.type === "checkbox" ? event.target.checked : event.target.value
 
-    const updatedFormInputs = {...formInputs}
-    const updatedFormInput = {...formInputs[inputName]} 
+  const updatedFormInputs = { ...formInputs }
+  const updatedFormInput = { ...formInputs[inputName] }
 
-    updatedFormInput.value = value
-    updatedFormInputs[inputName] = updatedFormInput
+  updatedFormInput.value = value
+  updatedFormInputs[inputName] = updatedFormInput
 
-    return updatedFormInputs
+  return updatedFormInputs
 }
 
 const createFormCpyAndExtractInput = (formInputs, inputName) => ({
-  updatedFormInputs:    { ...formInputs },
-  updatedFormInput:     { ...formInputs[inputName] },
+  updatedFormInputs: { ...formInputs },
+  updatedFormInput: { ...formInputs[inputName] },
 })
 
 const checkFormIsValid = (formInputs) => {
-    let formIsValid = true
-    for (let inputIdentifier in formInputs) {
-        formIsValid = formInputs[inputIdentifier].isValid && formIsValid
-    }
+  let formIsValid = true
+  for (let inputIdentifier in formInputs) {
+    formIsValid = formInputs[inputIdentifier].isValid && formIsValid
+  }
 
-    return formIsValid
+  return formIsValid
 }
 
-const showErrorsMsg = errors => (
-  errors.map(error => (    
-    (errors.length === 1 || error.infringedRule !== 'isRequired') 
-    && 
-    <FormHelperText id="password-error-text" key={ error.message }>{error.message}</FormHelperText> 
-  ))
-)
+// const showErrorsMsg = (errors) =>
+//   errors.map(
+//     (error) =>
+//       (errors.length === 1 || error.infringedRule !== "isRequired") && (
+//         <FormHelperText id="password-error-text" key={error.message}>
+//           {error.message}
+//         </FormHelperText>
+//       )
+//   )
 
-const checkControlHaveErrors = control => (
-  control.touched && !control.isValid
-)
+const checkControlHaveErrors = (control) => control.touched && !control.isValid
 
-export default { 
-  validateInput, 
+export default {
+  validateInput,
   handleInputChange,
-  checkFormIsValid, 
+  checkFormIsValid,
   checkControlHaveErrors,
-  showErrorsMsg,
-  validateInputs 
+  // showErrorsMsg,
+  validateInputs,
 }

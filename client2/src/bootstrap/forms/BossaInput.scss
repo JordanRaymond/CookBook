@@ -1,0 +1,152 @@
+/* input div for the input and the errors */
+.bossa-input {
+  // Error message under input
+  .error {
+    color: $danger;
+    padding-left: 9px;
+    margin: 0;
+  }
+
+  /* input div for the input and the label */
+  .bossa-input-container {
+    $borderSize: 2px;
+    $borderTransitionSpeed: 250ms;
+    $defaultInputColor: rgb(184, 183, 183);
+
+    /* necessary to give position: relative to parent. */
+    margin-top: 32px;
+    // margin-bottom: 20px;
+    float: left;
+    position: relative;
+
+    &.fw {
+      width: 100%;
+
+      .effect input {
+        width: 100%;
+      }
+    }
+
+    :focus {
+      outline: none;
+    }
+
+    &.dark input {
+      color: $defaultInputColor;
+    }
+
+    .effect {
+      position: relative; // necessary to keep the border only around the input and not the full container
+
+      /* necessary to give position: relative to parent. */
+      input[type="text"],
+      input[type="email"],
+      input[type="password"] {
+        width: 100%;
+        box-sizing: border-box;
+        letter-spacing: 1px;
+        position: relative;
+      }
+
+      input {
+        border: 1px solid $defaultInputColor;
+        border-radius: 5px;
+        padding: 7px 9px; // padding: 7px 14px
+        transition: 0.4s;
+        background: transparent;
+
+        &:-webkit-autofill {
+          -webkit-box-shadow: 0 0 0px 1000px #fbfbfb inset;
+        }
+      }
+
+      /* Change the white to any color ;) */
+      input:-webkit-autofill,
+      input:-webkit-autofill:hover,
+      input:-webkit-autofill:focus,
+      input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0px 1000px #fbfbfb inset;
+      }
+
+      &.focus,
+      &.invalid {
+        &::before,
+        &::after {
+          transform: scale(1);
+        }
+      }
+
+      &::after,
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+
+        z-index: 1;
+      }
+
+      /* ===== TOP BOT ===== */
+      &::before {
+        border-top: $borderSize solid theme-color("primary");
+        border-bottom: $borderSize solid theme-color("primary");
+        border-radius: 5px;
+
+        transform: scale(0, 1);
+        transition: linear $borderTransitionSpeed;
+      }
+      &.invalid::before {
+        border-color: $danger;
+      }
+      &.valid::before {
+        border-color: $success;
+      }
+
+      /* ===== SIDES ===== */
+      &::after {
+        border-left: $borderSize solid theme-color("primary");
+        border-right: $borderSize solid theme-color("primary");
+        border-radius: 5px;
+
+        transform: scale(1, 0);
+        transition: ease-out $borderTransitionSpeed;
+      }
+      &.invalid::after {
+        border-color: $danger;
+      }
+      &.valid::after {
+        border-color: $success;
+      }
+    }
+
+    /* ===== LABEL ===== */
+    label {
+      pointer-events: none;
+      position: absolute;
+      left: 14px;
+      width: 100%;
+      top: 7px;
+      color: $defaultInputColor;
+      transition: 0.3s;
+      z-index: 1;
+      letter-spacing: 0.5px;
+    }
+
+    &.dark label.float {
+      color: $defaultInputColor;
+    }
+
+    label.float {
+      top: -1.5em;
+      left: 0;
+      font-size: 1em;
+      // color: theme-color("primary");
+      color: black;
+      transition: 0.3s;
+    }
+  }
+}

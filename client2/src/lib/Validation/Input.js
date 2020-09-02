@@ -1,17 +1,32 @@
 class Input {
-  constructor(validationsRules, defaultValue = "") {
-    this.value = defaultValue
+  constructor(validationsRules, { dataExtractor } = {}) {
+    this.value = ""
     this.placeholder = ""
     this.isValid = false
     this.errors = []
     this.validationsRules = validationsRules
     this.isTouched = false
     this.args = null
+
+    if (dataExtractor) {
+      if (dataExtractor.constructor.name !== "RegExp") {
+        throw new Error("dataExtractor must be a RegExp.")
+      } else {
+        this.dataExtractor = dataExtractor
+      }
+    }
+  }
+
+  extractedValue() {
+    return this.execDataToValidate()
   }
 
   validate() {
-    const results = this.validationsRules.map(rule =>
-      rule.validate(this.value, this.args)
+    let value = this.dataExtractor ? this.execDataToValidate() : this.value
+    console.log(value)
+
+    const results = this.validationsRules.map((rule) =>
+      rule.validate(value, this.args)
     )
 
     const { isValid, errors } = this.extractDataFromResult(results)
@@ -53,6 +68,19 @@ class Input {
 
   haveErrors() {
     return this.isTouched && !this.isValid
+  }
+
+  execDataToValidate() {
+    let match = this.dataExtractor.exec(this.value)
+    let finalString = ""
+
+    if (match) {
+      for (let i = 1; i < match.length; i++) {
+        finalString += match[i]
+      }
+    }
+
+    return finalString
   }
 }
 

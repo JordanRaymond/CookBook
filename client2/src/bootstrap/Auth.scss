@@ -1,55 +1,60 @@
-
 .card {
-    background-color: theme-color("secondary");
-    color: $light;
+  background-color: theme-color("secondary");
+  color: $light;
 
-    .card-title {
-        margin-bottom: 2rem;
-        font-weight: 300;
-        font-size: 1.5rem;
+  .card-body {
+    padding: 2rem;
+  }
 
-        &.selected {
-            border-bottom: 1px solid rgba($light, 0.5);
-            color: $light;
-        }
-    }
+  .auth-card-header {
+    // margin-bottom: 2rem;
+    width: 100%;
+    margin: 0;
 
-    .card-title:hover {
-      border-bottom: 1px solid rgba($light, 0.5);
+    h5 {
+      font-weight: 1rem;
       color: $light;
     }
 
-    .card-title:hover ~ &.selected {
-      border-bottom: none;
-      color: $light2;
+    a {
+      float: right;
     }
 
-    .card-title, p {
-        color: $light2;
-    }
+    .auth-header-title {
+      display: inline;
+      transition: 100ms;
 
-    .card-body {
-        padding: 2rem;
+      &.login {
+        padding-left: 39%;
+      }
+
+      &.register {
+        font-size: 0.75em;
+        &:hover {
+          color: $light2;
+        }
+
+        // text-align: right;
+      }
     }
+  }
 }
 
 .form {
   width: 100%;
 
-    p.invalid {
-            color: $danger;
-    }
+  p.invalid {
+    color: $danger;
+  }
 
-    .btn {
-        font-size: 80%;
-        letter-spacing: .1rem;
-        font-weight: bold;
-        padding: 1rem;
-        transition: all 0.2s;
-    }
+  .btn {
+    font-size: 80%;
+    letter-spacing: 0.1rem;
+    font-weight: bold;
+    padding: 1rem;
+    transition: all 0.2s;
+  }
 }
-
-
 
 .form-label-group input::-webkit-input-placeholder {
   color: transparent;
@@ -72,20 +77,39 @@
 }
 
 .btn-google {
-  color: white;
-  background-color: #ea4335;
+  font-weight: bold;
+  color: $light3;
+  background-color: white;
 }
 
 .btn-facebook {
+  font-weight: bold;
   color: white;
-  background-color: #3b5998;
+  background-color: #4267b2;
+
+  &:before {
+    content: " ";
+    display: inline-block;
+    position: relative;
+    width: 20px;
+    height: 20px;
+    top: 5px;
+    background-color: white;
+    border-radius: 2em;
+  }
+
+  img {
+    position: absolute;
+    margin-left: -20px;
+    margin-top: 8px;
+  }
 }
 
 /* Fallback for Edge
 -------------------------------------------------- */
 
 @supports (-ms-ime-align: auto) {
-  .form-label-group>label {
+  .form-label-group > label {
     display: none;
   }
   .form-label-group input::-ms-input-placeholder {
@@ -96,68 +120,11 @@
 /* Fallback for IE
 -------------------------------------------------- */
 
-@media all and (-ms-high-contrast: none),
-(-ms-high-contrast: active) {
-  .form-label-group>label {
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+  .form-label-group > label {
     display: none;
   }
   .form-label-group input:-ms-input-placeholder {
     color: #777;
-  }
-}
-
-/* SPINNER */
-.lds-ellipsis {
-  display: inline-block;
-  position: relative;
-  width: 80px;
-}
-.lds-ellipsis div {
-  position: absolute;
-  top: -10px;
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  background: #fff;
-  animation-timing-function: cubic-bezier(0, 1, 1, 0);
-}
-.lds-ellipsis div:nth-child(1) {
-  left: 8px;
-  animation: lds-ellipsis1 0.6s infinite;
-}
-.lds-ellipsis div:nth-child(2) {
-  left: 8px;
-  animation: lds-ellipsis2 0.6s infinite;
-}
-.lds-ellipsis div:nth-child(3) {
-  left: 32px;
-  animation: lds-ellipsis2 0.6s infinite;
-}
-.lds-ellipsis div:nth-child(4) {
-  left: 56px;
-  animation: lds-ellipsis3 0.6s infinite;
-}
-@keyframes lds-ellipsis1 {
-  0% {
-    transform: scale(0);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-@keyframes lds-ellipsis3 {
-  0% {
-    transform: scale(1);
-  }
-  100% {
-    transform: scale(0);
-  }
-}
-@keyframes lds-ellipsis2 {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(24px, 0);
   }
 }

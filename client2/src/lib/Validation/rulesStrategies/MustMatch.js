@@ -15,7 +15,7 @@ class MustMatch {
     input to match (only used for the error message).
   */
   validate(value, args) {
-    const string = args["value"]
+    const string = args ? args["value"] : ""
     const isEmpty = value === undefined || value === null || value.length === 0
     if (isEmpty) return { isValid: true }
 

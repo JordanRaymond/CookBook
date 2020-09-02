@@ -1,216 +1,295 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from "react"
+
+function haveValue(value) {
+  return value && value.length > 0
+}
 
 function printErrors(errors) {
-    let msgs = []
-    let i = 0
-    if(Array.isArray(errors)) {
-        msgs = errors.map(error => (
-            <p key={i++} className={` ${!error || "error"}`}>{error.message}</p>
-        ))
-    }
+  let msgs = []
+  let i = 0
+  if (Array.isArray(errors)) {
+    msgs = errors.map((error) => (
+      <p key={i++} className={` ${!error || "error"}`}>
+        {error.message}
+      </p>
+    ))
+  }
 
-    return msgs
+  return msgs
 }
 
 function setCharAt(str, index, chr) {
-    if(index > str.length-1) return str;
-    return str.substr(0,index) + chr + str.substr(index+1);
+  if (index > str.length - 1) return str
+  return str.substr(0, index) + chr + str.substr(index + 1)
 }
-
-// document.addEventListener('DOMContentLoaded', () => {
-//     for (const el of document.querySelectorAll("[placeholder][data-slots]")) {
-//         const pattern = el.getAttribute("placeholder"),
-//             slots = new Set(el.dataset.slots || "_"),
-//             prev = (j => Array.from(pattern, (c, i) => slots.has(c) ? j = i + 1 : j))(0),
-//             first = [...pattern].findIndex(c => slots.has(c)),
-
-//             accept = new RegExp(el.dataset.accept || "\\d", "g"),
-
-//             clean = input => {
-//                 input = input.match(accept) || [];
-//                 return Array.from(pattern, c =>
-//                     input[0] === c || slots.has(c) ? input.shift() || c : c
-//                 );
-//             },
-
-//             format = () => {
-//                 const [i, j] = [el.selectionStart, el.selectionEnd].map(i => {
-//                     i = clean(el.value.slice(0, i))
-//                             .findIndex(c => slots.has(c));
-
-//                     return i < 0 ? prev[prev.length-1] : back ? prev[i-1] || first : i;
-//                 });
-
-//                 el.value = clean(el.value).join``;
-//                 el.setSelectionRange(i, j);
-//                 back = false;
-//             };
-
-//         let back = false;
-        
-//         el.addEventListener("keydown", (e) => back = e.key === "Backspace");
-//         el.addEventListener("input", format);
-//         el.addEventListener("focus", format);
-//         el.addEventListener("blur", () => el.value === pattern && (el.value=""));
-//     }
-// });
 
 const MaskInput = (props) => {
-    const [mask, setMask] = useState()
-    const [value, setValue] = useState('')
-    const [slotsIndexes, setSlotsIndexes] = useState([])
-    const input = useRef(null)
+  const [mask, setMask] = useState()
+  const [slotsIndexes, setSlotsIndexes] = useState([])
+  const [isFocus, setIsFocus] = useState(false)
 
-    // in the MaskInput the placeholder something like: _h_m or __/__/__ aka the mask
-    // data slots are the chars that represent emplacement for the input value like in: dd/mm the dataSlots would be: dm
-    // dataAccept is a regex <- Todo
-    let {
-        label, placeholder="placeholder", dataSlots, dataAccept,
-        isValid=false, errors, 
-        optional=false, fullWith, 
-        onChange, handleInputBlur, onKeyDown,
-        ...rest
-    } = props
+  const input = useRef(null)
 
-    useEffect(() => {
-        setMask(placeholder)
-        setValue(placeholder)
-        initSlotsIndexes(placeholder)
-      }, []);
+  // In the MaskInput the placeholder something like: _h_m or __/__/__ aka the mask.
+  // Data slots are the characters that represent emplacement for the input value like in: dd/mm the dataSlots would be: dm
+  // dataAccept is a regex <- Todo
+  let {
+    label,
+    name,
+    placeholder,
+    dataSlots,
+    dataAccept,
+    isValid = false,
+    errors,
+    optional = false,
+    fullWith,
+    handleInputBlur,
+    onKeyDown,
+    setValue,
+    value,
+    isTouched,
+    ...rest
+  } = props
 
-    const handleOnFocus = (event) => {
-        const index = slotsIndexes[0]
-        console.log(slotsIndexes)
-        setCursorPos(index)
-        event.preventDefault()
+  let backspaceWasPress = false
+  let checkForBackspace = false
+
+  useEffect(() => {
+    setMask(placeholder)
+    setValue(name, placeholder, false)
+    initSlotsIndexes(placeholder)
+  }, [])
+
+  // ===== Events by order of executions =====
+
+  /**
+   * @summary Set the cursor at the beggining
+   * @param {*} event
+   */
+  const handleOnFocus = (event) => {
+    const index = slotsIndexes[0]
+    setCursorPos(index)
+
+    // Prevent cursor being set to end bcs of the mask
+    event.preventDefault()
+    setIsFocus(true)
+  }
+
+  /**
+   * @summary Check if the user clicked on a input slot and reset the cursor if
+   * @param {*} event
+   */
+  const handleOnClick = (event) => {
+    const cursorAt = event.target.selectionStart
+
+    if (!isValidPosition(cursorAt)) {
+      setCursorPos(getNextSlotsPos(cursorAt + 1))
+    }
+  }
+
+  const handleOnKeyDown = (event) => {
+    const cursorAt = event.target.selectionStart // Index of the cursor
+    let key = event.key
+
+    if (key === "Unidentified" || event.keyCode === 229) {
+      checkForBackspace = true
     }
 
-    const handleOnKeyDown = (event) => {
-        const key = event.key
-        const cursorAt = event.target.selectionStart // Index of the cursor
+    // window.alert(
+    //   `key: ${event.key} keyCode: ${event.keyCode} charCode: ${event.charCode}`
+    // )
 
-        console.log(`keyDown cursotAt: ${cursorAt}`)
-        console.log(`keyDown key: ${key}`)
-        
-        handleCursorPosition(cursorAt, key)
+    if (key === "Backspace" || key === 8) {
+      backspaceWasPress = true
+    } else {
+      backspaceWasPress = false
     }
 
-    const handleOnChange = (event) => {
-        const cursorAt = event.target.selectionStart // Index of the cursor
-        console.log(`onChange cursor: ${cursorAt}`)
-        console.log(`onChange value: ${event.target.value}`)
+    // Arrow keys
+    handleCursorPosition(cursorAt, key, event)
+  }
 
-        if (slotsIndexes.includes(cursorAt - 1)) {
-            // validate with dataAccept
-            // get value
-            // replace value 
-            let valueCpy = value
-            valueCpy = setCharAt(valueCpy, cursorAt - 1, "a")
-            setValue(valueCpy)  
-            setCursorPos(getNextSlotsPos(cursorAt))
+  const handleOnChange = (event) => {
+    let cursorAt = event.target.selectionStart // Index of the cursor
 
-            // move cursor next data slot
-        }
+    cursorAt = handleOnKeyDownOverflow(cursorAt)
 
-        //  onChange(event)
+    if (checkForBackspace) {
+      if (event.target.value && event.target.value.length < value.length) {
+        backspaceWasPress = true
+      }
     }
 
-    const handleKeyUp = (event) => {
-        const key = event.key
-        const cursorAt = event.target.selectionStart // Index of the cursor
+    if (backspaceWasPress) {
+      handleBackspace(cursorAt, event)
+    } else if (slotsIndexes.includes(cursorAt - 1)) {
+      // TODO validate with dataAccept (regex)
+      let valueCpy = value
+      let changedIndex = cursorAt - 1
+      valueCpy = setCharAt(
+        valueCpy,
+        cursorAt - 1,
+        event.target.value[changedIndex]
+      )
 
-        console.log(`keyUp cursotAt: ${cursorAt}`)
-        console.log(`keyUp Key: ${key}`)
-        console.log(`==================`)
+      setValue(name, valueCpy)
+      setCursorPos(getNextSlotsPos(cursorAt))
+    }
+  }
 
+  const handleBlur = (event) => {
+    handleInputBlur(event)
+    setIsFocus(false)
+  }
+
+  // keyUp
+  // !=====! ================== !=====!
+
+  /**
+   * @summary On key down the cursor move right automaticly, prevent the overflow
+   * @param {*} cursorAt
+   */
+  const handleOnKeyDownOverflow = (cursorAt) => {
+    if (cursorAt > slotsIndexes[slotsIndexes.length - 1] + 1)
+      cursorAt = slotsIndexes[slotsIndexes.length - 1] + 1
+
+    return cursorAt
+  }
+
+  const isValidPosition = (cursorPosition) => {
+    let isValid = true
+    if (!slotsIndexes.includes(cursorPosition)) {
+      if (cursorPosition !== slotsIndexes[slotsIndexes.length - 1]) {
+        isValid = false
+      }
     }
 
-    const initSlotsIndexes = (placeholder) => {
-        let slotsIndexesCpy = slotsIndexes;
+    return isValid
+  }
 
-        [...placeholder].forEach((char, i) => {
-            if(dataSlots.includes(char)) {
-                slotsIndexesCpy.push(i)
-            }
-        })
-
-        setSlotsIndexes(slotsIndexesCpy)
+  const handleCursorPosition = (cursorAt, key, event) => {
+    if (key === "ArrowRight") {
+      if (!isValidPosition(cursorAt + 1)) {
+        setCursorPos(getNextSlotsPos(cursorAt + 1))
+      }
+    } else if (key === "ArrowLeft") {
+      if (!isValidPosition(cursorAt - 1)) {
+        setCursorPos(getPrevSlotsPos(cursorAt - 1))
+      }
     }
-    
-    const handleOnClick = (event) => {
-        const cursorAt = event.target.selectionStart 
-        if (!slotsIndexes.includes(cursorAt)) {
-            setCursorPos(getNextSlotsPos(cursorAt + 1))
-        }
-    }
+  }
 
-    const handleCursorPosition = (cursorAt, key, isMouseEvent = false) => {
-        if (key === "ArrowRight") {
-            if (!slotsIndexes.includes(cursorAt + 1)) {
-                setCursorPos(getNextSlotsPos(cursorAt + 1))
-            }
-        } else if (key === "ArrowLeft") {
-            if (!slotsIndexes.includes(cursorAt - 1)) {
-                setCursorPos(getPrevSlotsPos(cursorAt - 1))
-            }
-        }
+  const handleBackspace = (cursorAt, event) => {
+    let index = cursorAt
+    if (!isValidPosition(cursorAt)) {
+      index = getPrevSlotsPos(cursorAt)
     }
 
-    const getNextSlotsPos = (cursorPos) => {
-        let nextPos = null
-        slotsIndexes.forEach(value => {
-            if (!nextPos && value >= cursorPos) {
-                console.log(value)
-                nextPos = value
-            }
-        })
+    let valueCpy = value
+    valueCpy = setCharAt(valueCpy, index, mask[index])
 
-        return nextPos ? nextPos : slotsIndexes[slotsIndexes.length-1]
+    setValue(name, valueCpy)
+    setCursorPos(index)
+  }
+
+  const getNextSlotsPos = (maskIndex) => {
+    if (maskIndex === slotsIndexes[slotsIndexes.length - 1] + 1) {
+      return slotsIndexes[slotsIndexes.length - 1] + 1
     }
 
-    const getPrevSlotsPos = (cursorPos) => {
-        let prevPos = null
+    let nextPos = null
+    slotsIndexes.forEach((value) => {
+      if (!nextPos && value >= maskIndex) {
+        nextPos = value
+      }
+    })
 
-        for (let i = cursorPos - 1; i > 0; i--) {
-            if (slotsIndexes.includes(i)) {
-                prevPos = i
-                
-                break 
-            } 
-            
-        }
+    return nextPos ? nextPos : slotsIndexes[slotsIndexes.length - 1] + 1
+  }
 
-        return prevPos ? prevPos : slotsIndexes[0]
+  const getPrevSlotsPos = (maskIndex) => {
+    let prevPos = null
+
+    for (let i = maskIndex - 1; i > 0; i--) {
+      if (slotsIndexes.includes(i)) {
+        prevPos = i
+
+        break
+      }
     }
 
-    const setCursorPos = (newPos) => {
-        window.requestAnimationFrame(() => {
-            input.current.setSelectionRange(newPos, newPos)
-          })
+    return prevPos ? prevPos : slotsIndexes[0]
+  }
+
+  const setCursorPos = (newPos) => {
+    window.requestAnimationFrame(() => {
+      input.current.setSelectionRange(newPos, newPos)
+    })
+  }
+
+  const initSlotsIndexes = (mask) => {
+    let slotsIndexesCpy = slotsIndexes
+
+    ;[...mask].forEach((char, i) => {
+      if (dataSlots.includes(char)) {
+        slotsIndexesCpy.push(i)
+      }
+    })
+
+    setSlotsIndexes(slotsIndexesCpy)
+  }
+
+  const getInputClasses = () => {
+    let classes = ""
+    classes += "has-content "
+
+    if (isFocus) classes += "focus "
+
+    if (haveValue(value) && isTouched) {
+      classes += !isValid ? "invalid " : "valid "
+    } else {
+      classes += optional ? "optional " : ""
+      if (!isValid && isTouched) classes += "invalid "
     }
 
-    const isOptional = optional && value.length === 0 
-    return ( 
-        <div className="form-input-container">
-            <label>{label || placeholder}</label>
-            <input 
-                ref={input} 
-                onFocus={handleOnFocus} 
-                onKeyDown={handleOnKeyDown}
-                onKeyUp={handleKeyUp}
-                onClick={handleOnClick}
-                onChange={handleOnChange} 
-                // onBlur={handleInputBlur} 
-                // onKeyDown={onKeyDown} 
-                value={value}
-                className={`form-input ${fullWith && 'fw'} ${!isValid ? 'invalid' : 'valid'} ${isOptional ? 'optional'  : ""}`} 
-                type={"text"} 
-                placeholder={placeholder} 
-                {...rest}  
-            />
-            {printErrors(errors)}
+    return classes
+  }
+
+  const getLabelClass = () => {
+    if (isFocus || haveValue(value)) return "float"
+
+    return ""
+  }
+
+  const isOptional = optional && value.length === 0
+  return (
+    <div className="bossa-input">
+      <div className={`bossa-input-container ${fullWith && "fw"}`}>
+        <div className={`effect ${getInputClasses()}`}>
+          <input
+            name={name}
+            ref={input}
+            onFocus={handleOnFocus}
+            onKeyDown={handleOnKeyDown}
+            onClick={handleOnClick}
+            onChange={handleOnChange}
+            onBlur={handleBlur}
+            value={value}
+            className={`bossa-input`}
+            type={"text"}
+            spellCheck="false"
+            placeholder={placeholder}
+            {...rest}
+          />
         </div>
-     )
+        <label className={getLabelClass()}>{label || placeholder}</label>
+        <span className="focus-border">
+          <i></i>
+        </span>
+        {printErrors(errors)}
+      </div>
+    </div>
+  )
 }
- 
+
 export default MaskInput
