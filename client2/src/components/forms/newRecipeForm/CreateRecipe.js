@@ -60,6 +60,8 @@ function CreateRecipe() {
       // Ingredients list is dynamically created in createIngredientsList and createIngredient
     })
   )
+  const [ingredientsLists, setIngredientsLists] = useState([])
+  // The recipe object that wee pass to the recipe preview
   const [recipeObj, setRecipeObj] = useState(new RecipeObj())
 
   useEffect(() => {
@@ -117,6 +119,128 @@ function CreateRecipe() {
     formCopy.validate()
 
     setFormInputs(formCopy)
+  }
+
+  const createIngredientsList = () => {
+    let formCopy = Object.assign(Object.create(formInputs), formInputs)
+    let ingredientsListsCpy = ingredientsLists
+    let titleInput = new FormInput([new IsAlphanumeric(), new MinLength(2)])
+    let newList = { ingredientsOrder: [] }
+
+    ingredientsListsCpy.push(newList)
+    formCopy.inputs['title'+listCount] = titleInput
+
+    let listCount = ingredientsListsCpy.length
+    createIngredient(listCount)
+
+    setFormInputs(formCopy)
+    setIngredientsLists(ingredientsListsCpy)
+  }
+
+    // TODO check if the title is not null and its an array, switch to obj 
+    createIngredient = (listIndex) => {
+        let formCopy = Object.assign(Object.create(formInputs), formInputs)
+        let ingredientIndex = ingredientsIndex
+        let ingredientsLists = ingredientsLists
+    
+        let nameInput = new FormInput([new IsRequired(), new IsAlphanumeric(), new MinLength(2)])
+        let mesureInput = new FormInput([new IsRequired(), new IsAlphanumeric(), new MinLength(2)]) 
+        let quantityInput = new FormInput([new IsRequired(), new MinLength(2)]) // Check is number
+        let indicationInput = new FormInput([new IsAlphanumeric(), new MinLength(2)])
+    
+        formCopy.inputs['name'+ingredientIndex] = nameInput
+        formCopy.inputs['mesure'+ingredientIndex] = mesureInput 
+        formCopy.inputs['quantity'+ingredientIndex] = quantityInput
+        formCopy.inputs['indication'+ingredientIndex] = indicationInput
+    
+        ingredientsLists[listIndex].ingredientsOrder.push(ingredientIndex)
+    
+        this.setState({formInputs: formCopy, ingredientsIndex: ingredientIndex+1, ingredientsLists: ingredientsLists})
+      }
+
+  const renderIngredientsLists = () => {
+    let lists = []
+    
+    for (let i = 0; i < ingredientsLists.length; i++) {
+      lists.push((
+          // TODO create class
+          <div className={`ingredientsList`}>
+              {/* Function to create bossaInput */}
+            {bossaInputWrapper('List title (optional)', 'title'+i, false)}
+            {renderIngredients(ingredientsLists[i].ingredientsOrder)}
+            <Button  color="secondary" aria-label="add" className={this.props.classes.bottomSectionButton} onClick={()=>this.createIngredient(i)}>
+              Add ingredient
+            </Button>
+          </div>
+        ))
+
+    }
+    
+    return <Fragment>{lists}</Fragment>
+  }
+
+  renderIngredients = (ingredientsOrder) => {
+    const formInputs = this.state.formInputs
+    let ingredients = []
+
+    for (var i = 0; i < ingredientsOrder.length; i++) {
+      const ingredientNumber = ingredientsOrder[i]
+
+      ingredients.push(<IngredientInput 
+        ingredientNumber={ingredientNumber}
+        ingredientIndex={i}
+        name={formInputs.input('name'+ingredientNumber)} 
+        mesure={formInputs.input('mesure'+ingredientNumber)} 
+        quantity={formInputs.input('quantity'+ingredientNumber)} 
+        indication={formInputs.input('indication'+ingredientNumber)} 
+
+        handleInputChange={this.handleInputChange}
+        handleInputBlur={this.handleInputBlur}
+        moveIngredientUp={this.moveIngredientUp}
+        moveIngredientDown={this.moveIngredientDown}
+        isLastIngredient={i === ingredientsOrder.length-1}
+      />)
+    }
+
+    return <Fragment>{ingredients}</Fragment>
+  }
+
+  moveIngredientUp = (ingredientIndex) => {
+    if (ingredientIndex !== 0) {
+      let ingredientsOrderCpy = this.state.ingredientsOrder
+      let firstIngredientNum = ingredientsOrderCpy[ingredientIndex]
+      let secondIngredientNum = ingredientsOrderCpy[ingredientIndex-1]
+  
+      ingredientsOrderCpy[ingredientIndex] = secondIngredientNum
+      ingredientsOrderCpy[ingredientIndex-1] = firstIngredientNum
+  
+      this.setState({ingredientsOrder: ingredientsOrderCpy})
+    }
+  }
+
+  moveIngredientDown = (ingredientIndex) => {
+    if (ingredientIndex !== this.state.ingredientsOrder.length-1) {
+      let ingredientsOrderCpy = this.state.ingredientsOrder
+      let firstIngredientNum = ingredientsOrderCpy[ingredientIndex]
+      let secondIngredientNum = ingredientsOrderCpy[ingredientIndex+1]
+  
+      ingredientsOrderCpy[ingredientIndex] = secondIngredientNum
+      ingredientsOrderCpy[ingredientIndex+1] = firstIngredientNum
+  
+      this.setState({ingredientsOrder: ingredientsOrderCpy})
+    }
+  }
+
+  const bossaInputWrapper = (label, inputName, required) => {
+    return generateInput(
+        label,
+        inputName,
+        required,
+        true,
+        label,
+        "text",
+        { autocomplete: "off" }
+    )
   }
 
   const generateInput = (

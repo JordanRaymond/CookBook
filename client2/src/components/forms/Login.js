@@ -57,6 +57,7 @@ const Login = (props) => {
   const handleSubmit = async (event, formInputs) => {
     event.preventDefault()
 
+    console.log("here")
     console.log(formInputs)
     let formCopy = Object.assign(Object.create(formInputs), formInputs)
     const formIsValid = formCopy.validate()
